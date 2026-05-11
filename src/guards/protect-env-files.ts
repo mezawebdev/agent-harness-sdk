@@ -1,4 +1,4 @@
-import type { Guard } from "../types";
+import { guardDeny, type Guard } from "../types";
 
 const ENV_FILE = /\/\.env(\..*)?$/;
 const WRITE_TOOLS = new Set(["Edit", "Write", "MultiEdit"]);
@@ -16,9 +16,8 @@ export const protectEnvFiles: Guard = {
   },
   async run(input) {
     const file = input.tool_input?.file_path ?? "";
-    return {
-      allow: false,
-      reason: `protect-env-files: ${file} is protected. .env files should not be modified by automation — ask the user to edit manually.`,
-    };
+    return guardDeny(
+      `protect-env-files: ${file} is protected. .env files should not be modified by automation — ask the user to edit manually.`,
+    );
   },
 };

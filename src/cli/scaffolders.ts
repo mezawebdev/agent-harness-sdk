@@ -1,21 +1,21 @@
 /** Templates emitted by `harness add <type> <name>`. */
 import { kebabToCamel, kebabToSnake } from "./case";
 
-export type AddType = "tool" | "guard" | "check" | "skill" | "subagent" | "rule";
+export type AddType = "tool" | "guard" | "check";
 
 export type Scaffold = {
   /** Path relative to project root. */
   filePath: string;
   /** File content. */
   content: string;
-  /** Camelcase identifier to use in harness.config.ts (only for tool/guard/check). */
-  configBinding?: string;
-  /** Array name in harness.config.ts (only for tool/guard/check). */
-  configArrayName?: "tools" | "guards" | "checks";
-  /** Import path relative to harness.config.ts (only for tool/guard/check). */
-  configImportPath?: string;
+  /** Camelcase identifier to use in harness.config.ts. */
+  configBinding: string;
+  /** Array name in harness.config.ts. */
+  configArrayName: "tools" | "guards" | "checks";
+  /** Import path relative to harness.config.ts. */
+  configImportPath: string;
   /** Whether the export is default (true for tool) or named (false for guard/check). */
-  configIsDefault?: boolean;
+  configIsDefault: boolean;
 };
 
 export function scaffold(type: AddType, name: string): Scaffold {
@@ -26,12 +26,6 @@ export function scaffold(type: AddType, name: string): Scaffold {
       return scaffoldGuard(name);
     case "check":
       return scaffoldCheck(name);
-    case "skill":
-      return scaffoldSkill(name);
-    case "subagent":
-      return scaffoldSubagent(name);
-    case "rule":
-      return scaffoldRule(name);
   }
 }
 
@@ -44,20 +38,16 @@ function scaffoldTool(name: string): Scaffold {
     configArrayName: "tools",
     configImportPath: `./tools/${name}.js`,
     configIsDefault: true,
-    content: `import { z } from "zod";
-import { defineTool, toolErr, toolOk } from "agent-harness-sdk";
+    content: `import { defineTool, toolErr, toolOk, z } from "agent-harness-sdk";
 
 export default defineTool({
   name: "${snake}",
   config: {
     title: "${name}",
     description: "TODO: describe what this tool does — be specific about when to use it.",
-    inputSchema: {
-      // TODO: define inputs, e.g.:
-      // arg: z.string(),
-    },
+    // inputSchema: { arg: z.string() }, // optional — declare any zod-typed inputs
   },
-  handler: async (_args) => {
+  handler: async () => {
     // TODO: implement
     return toolOk(null);
   },
@@ -74,7 +64,7 @@ function scaffoldGuard(name: string): Scaffold {
     configArrayName: "guards",
     configImportPath: `./guards/${name}.js`,
     configIsDefault: false,
-    content: `import { defineGuard } from "agent-harness-sdk";
+    content: `import { defineGuard, guardAllow, guardDeny } from "agent-harness-sdk";
 
 export const ${camel} = defineGuard({
   name: "${name}",
@@ -85,8 +75,8 @@ export const ${camel} = defineGuard({
   },
   async run(_input) {
     // TODO: decide whether to allow or deny.
-    // return { allow: false, reason: "${name}: <why this was blocked>" };
-    return { allow: true };
+    // return guardDeny("${name}: <why this was blocked>");
+    return guardAllow();
   },
 });
 `,
@@ -101,7 +91,7 @@ function scaffoldCheck(name: string): Scaffold {
     configArrayName: "checks",
     configImportPath: `./checks/${name}.js`,
     configIsDefault: false,
-    content: `import { defineCheck } from "agent-harness-sdk";
+    content: `import { defineCheck, checkFail, checkOk } from "agent-harness-sdk";
 
 export const ${camel} = defineCheck({
   name: "${name}",
@@ -111,82 +101,10 @@ export const ${camel} = defineCheck({
   },
   async run(_filePath) {
     // TODO: validate the resulting state.
-    // return { ok: false, message: "${name}: <what's wrong>" };
-    return { ok: true };
+    // return checkFail("${name}: <what's wrong>");
+    return checkOk();
   },
 });
-`,
-  };
-}
-
-function scaffoldSkill(name: string): Scaffold {
-  return {
-    filePath: `.claude/skills/${name}/SKILL.md`,
-    content: `---
-name: ${name}
-description: TODO — when should Claude invoke this skill? Lead with "Use for X". Mention what to use instead for adjacent cases.
----
-
-# ${name}
-
-TODO: One-line summary of what this skill does.
-
-## Tools available
-
-- TODO: list any tools this skill orchestrates.
-
-## Workflows
-
-### TODO: workflow name
-
-1. TODO: step
-2. TODO: step
-
-## Constraints
-
-- TODO: what should this skill NOT do
-`,
-  };
-}
-
-function scaffoldSubagent(name: string): Scaffold {
-  return {
-    filePath: `.claude/agents/${name}.md`,
-    content: `---
-name: ${name}
-description: TODO — when should Claude delegate to this agent? Should describe COMPOUND or AUTONOMOUS work. Mention what skill to use instead for one-shot tasks.
-tools: Read, Edit, Write, Glob, Grep, Bash
----
-
-You own TODO. Everything else is out of scope.
-
-## Skills
-
-- TODO: which skills this agent orchestrates
-
-## Constraints
-
-- Path scope: TODO
-- TODO: other constraints
-- If the same task fails three times, stop and report rather than thrashing.
-`,
-  };
-}
-
-function scaffoldRule(name: string): Scaffold {
-  return {
-    filePath: `.claude/rules/${name}.md`,
-    content: `# ${name}
-
-TODO: brief intro — what this rule is about and when it applies.
-
-## Section
-
-- TODO: rule
-
-## Section
-
-- TODO: more content
 `,
   };
 }

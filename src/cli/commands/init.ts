@@ -8,27 +8,37 @@ import {
 import { join } from "node:path";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
+import {
+  mergeClaudeSettings,
+  mergeMcpServers,
+} from "../merge-config";
 import { syncContent } from "../sync-content";
 import {
-  claudeSettingsTemplate,
   harnessConfigTemplate,
-  mcpJsonTemplate,
+  harnessHookEntries,
+  harnessMcpServerEntry,
 } from "../templates";
+
+const HARNESS_MCP_SERVER_KEY = "harness-mcp";
+
+function readJsonOrNull(path: string): unknown {
+  if (!existsSync(path)) return null;
+  try {
+    return JSON.parse(readFileSync(path, "utf-8"));
+  } catch {
+    return null;
+  }
+}
 
 export async function init(): Promise<void> {
   const cwd = process.cwd();
 
   p.intro(pc.cyan("agent-harness-sdk init"));
 
-  const existing = [
-    "harness",
-    ".mcp.json",
-    ".claude/settings.json",
-  ].filter((rel) => existsSync(join(cwd, rel)));
-
-  if (existing.length > 0) {
+  // Only block on harness/ — settings.json and .mcp.json are merged, not overwritten.
+  if (existsSync(join(cwd, "harness"))) {
     const proceed = await p.confirm({
-      message: `Existing harness files detected (${existing.join(", ")}). Overwrite?`,
+      message: `An existing harness/ directory was found. Overwrite harness.config.ts?`,
       initialValue: false,
     });
     if (p.isCancel(proceed) || !proceed) {
@@ -47,11 +57,27 @@ export async function init(): Promise<void> {
   mkdirSync(join(cwd, ".claude/commands"), { recursive: true });
   s.stop("Directories created");
 
-  s.start("Writing config files");
+  s.start("Writing harness.config.ts");
   writeFileSync(join(cwd, "harness/harness.config.ts"), harnessConfigTemplate());
-  writeFileSync(join(cwd, ".mcp.json"), mcpJsonTemplate());
-  writeFileSync(join(cwd, ".claude/settings.json"), claudeSettingsTemplate());
-  s.stop("Config files written");
+  s.stop("harness.config.ts written");
+
+  s.start("Merging .claude/settings.json (preserving existing entries)");
+  const settingsPath = join(cwd, ".claude/settings.json");
+  const existingSettings = readJsonOrNull(settingsPath) as Parameters<typeof mergeClaudeSettings>[0];
+  const mergedSettings = mergeClaudeSettings(existingSettings, harnessHookEntries());
+  writeFileSync(settingsPath, `${JSON.stringify(mergedSettings, null, 2)}\n`);
+  s.stop(".claude/settings.json merged");
+
+  s.start("Merging .mcp.json (preserving other MCP servers)");
+  const mcpPath = join(cwd, ".mcp.json");
+  const existingMcp = readJsonOrNull(mcpPath) as Parameters<typeof mergeMcpServers>[0];
+  const mergedMcp = mergeMcpServers(
+    existingMcp,
+    HARNESS_MCP_SERVER_KEY,
+    harnessMcpServerEntry(),
+  );
+  writeFileSync(mcpPath, `${JSON.stringify(mergedMcp, null, 2)}\n`);
+  s.stop(".mcp.json merged");
 
   s.start("Installing library skills, rules, and commands");
   const summary = syncContent(cwd);
@@ -81,8 +107,8 @@ export async function init(): Promise<void> {
       `${pc.dim("•")} ${pc.bold(".claude/skills/")}           library skills (synced)`,
       `${pc.dim("•")} ${pc.bold(".claude/rules/harness.md")}  conventions (synced)`,
       `${pc.dim("•")} ${pc.bold(".claude/commands/harness.md")} /harness slash command (synced)`,
-      `${pc.dim("•")} ${pc.bold(".mcp.json")}                 MCP server registration`,
-      `${pc.dim("•")} ${pc.bold(".claude/settings.json")}     hook registrations`,
+      `${pc.dim("•")} ${pc.bold(".mcp.json")}                 MCP server merged in`,
+      `${pc.dim("•")} ${pc.bold(".claude/settings.json")}     hooks merged in`,
     ].join("\n"),
     "Created",
   );
@@ -92,10 +118,9 @@ export async function init(): Promise<void> {
       pc.green("Harness initialized."),
       "",
       pc.dim("Next steps:"),
-      `  1. Install peer deps: ${pc.cyan("npm install --save-dev @modelcontextprotocol/sdk zod tsx")}`,
-      `  2. Restart Claude Code from this directory`,
-      `  3. Approve the new MCP server and hook commands when prompted`,
-      `  4. Add tools/guards/checks under ${pc.cyan("harness/")} and register in ${pc.cyan("harness.config.ts")}`,
+      `  1. Restart Claude Code from this directory`,
+      `  2. Approve the new MCP server and hook commands when prompted`,
+      `  3. Add tools/guards/checks under ${pc.cyan("harness/")} and register in ${pc.cyan("harness.config.ts")}`,
     ].join("\n"),
   );
 }

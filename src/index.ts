@@ -1,6 +1,14 @@
 export const VERSION = "0.0.0";
 
 // ──────────────────────────────────────────────────────────────────────────
+// Re-exports
+// ──────────────────────────────────────────────────────────────────────────
+// Re-export zod so users have a single import surface. Zod is required by the
+// MCP SDK for tool input schemas; re-exporting means users don't have to
+// install or import it separately.
+export { z } from "zod";
+
+// ──────────────────────────────────────────────────────────────────────────
 // Types
 // ──────────────────────────────────────────────────────────────────────────
 export type {
@@ -16,9 +24,11 @@ export type {
 } from "./types";
 
 // ──────────────────────────────────────────────────────────────────────────
-// Tool helpers
+// Result helpers — build the standard envelope for each primitive
 // ──────────────────────────────────────────────────────────────────────────
 export { toolOk, toolErr } from "./types";
+export { guardAllow, guardDeny } from "./types";
+export { checkOk, checkFail } from "./types";
 
 // ──────────────────────────────────────────────────────────────────────────
 // Hook utilities (stdin I/O, exit helpers)
@@ -54,6 +64,10 @@ export { protectEnvFiles } from "./guards/protect-env-files";
 // Universal tools (library-provided)
 // ──────────────────────────────────────────────────────────────────────────
 export { harnessStatus } from "./tools/harness-status";
+export {
+  evolveRecordRun,
+  evolveDismissFinding,
+} from "./tools/evolve-state";
 
 // ──────────────────────────────────────────────────────────────────────────
 // Observability

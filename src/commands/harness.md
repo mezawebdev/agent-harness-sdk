@@ -25,7 +25,7 @@ npx --no-install harness $ARGUMENTS
 |---|---|
 | `/harness init` | Bootstrap a harness in this project. May prompt for overwrite if files exist. |
 | `/harness update` | Update library skills + rules + commands from agent-harness-sdk (preserves local edits via manifest). |
-| `/harness add <type> <name>` | Scaffold a new primitive. Types: `tool`, `guard`, `check`, `skill`, `subagent`, `rule`. Names must be kebab-case. |
+| `/harness add <type> <name>` | Scaffold a new typed primitive. Types: `tool`, `guard`, `check`. Names must be kebab-case. |
 
 ## Constraints
 

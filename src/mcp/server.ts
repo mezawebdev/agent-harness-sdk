@@ -25,7 +25,11 @@ export async function createMcpServer(
       );
     }
     const wrapped = wrapWithLogging(tool);
-    server.registerTool(tool.name, tool.config, wrapped);
+    server.registerTool(
+      tool.name,
+      { ...tool.config, inputSchema: tool.config.inputSchema ?? {} },
+      wrapped,
+    );
   }
 
   await server.connect(new StdioServerTransport());

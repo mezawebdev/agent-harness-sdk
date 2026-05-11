@@ -18,7 +18,7 @@ Guards exist to prevent damage that's expensive or impossible to undo. If you ca
 ## Shape
 
 ```ts
-import { defineGuard } from "agent-harness-sdk";
+import { defineGuard, guardAllow, guardDeny } from "agent-harness-sdk";
 
 export const myGuard = defineGuard({
   name: "my-guard",
@@ -30,12 +30,21 @@ export const myGuard = defineGuard({
   run: async (input) => {
     const command = (input.tool_input as { command?: string })?.command ?? "";
     if (command.includes("rm -rf")) {
-      return { allow: false, reason: "rm -rf is blocked by my-guard" };
+      return guardDeny("rm -rf is blocked by my-guard");
     }
-    return { allow: true };
+    return guardAllow();
   },
 });
 ```
+
+## Result helpers
+
+Use the factories instead of writing the result object inline:
+
+- `guardAllow()` → `{ allow: true }`
+- `guardDeny(reason)` → `{ allow: false, reason }`
+
+Reason strings are surfaced verbatim to Claude. Prefix with the guard name so the failure is traceable.
 
 ## Registration
 

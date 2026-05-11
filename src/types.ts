@@ -41,12 +41,13 @@ export function toolErr(error: string): ToolContent {
   };
 }
 
-export type Tool<Schema extends ZodRawShape = ZodRawShape> = {
+export type Tool<Schema extends ZodRawShape = {}> = {
   name: string;
   config: {
     title?: string;
     description: string;
-    inputSchema: Schema;
+    /** Zod shape describing tool inputs. Omit for tools that take no arguments. */
+    inputSchema?: Schema;
   };
   handler: (args: z.infer<z.ZodObject<Schema>>) => Promise<ToolContent>;
 };
@@ -56,6 +57,14 @@ export type Tool<Schema extends ZodRawShape = ZodRawShape> = {
 // ──────────────────────────────────────────────────────────────────────────
 
 export type GuardResult = { allow: true } | { allow: false; reason: string };
+
+export function guardAllow(): GuardResult {
+  return { allow: true };
+}
+
+export function guardDeny(reason: string): GuardResult {
+  return { allow: false, reason };
+}
 
 export type GuardPhase = "pre-tool-use";
 
@@ -71,6 +80,14 @@ export type Guard = {
 // ──────────────────────────────────────────────────────────────────────────
 
 export type CheckResult = { ok: true } | { ok: false; message: string };
+
+export function checkOk(): CheckResult {
+  return { ok: true };
+}
+
+export function checkFail(message: string): CheckResult {
+  return { ok: false, message };
+}
 
 export type CheckPhase = "post-tool-use" | "stop" | "post-tool-batch";
 

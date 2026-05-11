@@ -5,6 +5,9 @@ import type { HarnessConfig } from "../define";
 import { projectDir } from "../hooks/utils";
 import { createMcpServer } from "./server";
 
+const DEFAULT_MCP_NAME = "harness-mcp";
+const DEFAULT_MCP_VERSION = "0.1.0";
+
 async function main() {
   const configPath = join(projectDir(), "harness", "harness.config.ts");
 
@@ -19,16 +22,9 @@ async function main() {
     default: HarnessConfig;
   };
 
-  if (!mod.default.mcp) {
-    process.stderr.write(
-      "agent-harness-sdk: harness.config.ts has no `mcp` block\n",
-    );
-    process.exit(1);
-  }
-
   await createMcpServer({
-    name: mod.default.mcp.name,
-    version: mod.default.mcp.version,
+    name: mod.default.mcp?.name ?? DEFAULT_MCP_NAME,
+    version: mod.default.mcp?.version ?? DEFAULT_MCP_VERSION,
     tools: mod.default.tools ?? [],
   });
 }

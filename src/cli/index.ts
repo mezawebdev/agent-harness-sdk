@@ -29,7 +29,7 @@ program
 program
   .command("add")
   .description("Scaffold a new harness primitive")
-  .argument("<type>", "tool | guard | check | skill | subagent | rule")
+  .argument("<type>", "tool | guard | check")
   .argument("<name>", "kebab-case name")
   .action(async (type: string, name: string) => {
     await add(type, name);

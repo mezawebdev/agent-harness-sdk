@@ -6,14 +6,7 @@ import { isKebabCase } from "../case";
 import { updateHarnessConfig } from "../config-updater";
 import { type AddType, scaffold } from "../scaffolders";
 
-const VALID_TYPES: AddType[] = [
-  "tool",
-  "guard",
-  "check",
-  "skill",
-  "subagent",
-  "rule",
-];
+const VALID_TYPES: AddType[] = ["tool", "guard", "check"];
 
 export async function add(type: string, name: string): Promise<void> {
   const cwd = process.cwd();
@@ -44,39 +37,37 @@ export async function add(type: string, name: string): Promise<void> {
   writeFileSync(absPath, out.content);
   console.log(`  ${pc.dim("✓")} wrote ${pc.bold(out.filePath)}`);
 
-  // Update harness.config.ts if applicable
-  if (out.configArrayName && out.configBinding && out.configImportPath) {
-    const configPath = join(cwd, "harness/harness.config.ts");
-    if (!existsSync(configPath)) {
+  // Update harness.config.ts
+  const configPath = join(cwd, "harness/harness.config.ts");
+  if (!existsSync(configPath)) {
+    console.log(
+      `  ${pc.yellow("!")} ${pc.dim("harness/harness.config.ts not found — skipping registration")}`,
+    );
+  } else {
+    const current = readFileSync(configPath, "utf-8");
+    const result = updateHarnessConfig(
+      current,
+      out.configArrayName,
+      out.configBinding,
+      out.configImportPath,
+      out.configIsDefault,
+    );
+    if (result.ok) {
+      writeFileSync(configPath, result.content);
       console.log(
-        `  ${pc.yellow("!")} ${pc.dim("harness/harness.config.ts not found — skipping registration")}`,
+        `  ${pc.dim("✓")} registered ${pc.bold(out.configBinding)} in ${pc.bold("harness.config.ts")}`,
       );
     } else {
-      const current = readFileSync(configPath, "utf-8");
-      const result = updateHarnessConfig(
-        current,
-        out.configArrayName,
-        out.configBinding,
-        out.configImportPath,
-        out.configIsDefault ?? false,
+      console.log(
+        `  ${pc.yellow("!")} could not auto-register (${result.reason}) — add manually:`,
       );
-      if (result.ok) {
-        writeFileSync(configPath, result.content);
-        console.log(
-          `  ${pc.dim("✓")} registered ${pc.bold(out.configBinding)} in ${pc.bold("harness.config.ts")}`,
-        );
-      } else {
-        console.log(
-          `  ${pc.yellow("!")} could not auto-register (${result.reason}) — add manually:`,
-        );
-        const importLine = out.configIsDefault
-          ? `import ${out.configBinding} from "${out.configImportPath}";`
-          : `import { ${out.configBinding} } from "${out.configImportPath}";`;
-        console.log(pc.dim(`     ${importLine}`));
-        console.log(
-          pc.dim(`     // and add ${out.configBinding} to the ${out.configArrayName} array`),
-        );
-      }
+      const importLine = out.configIsDefault
+        ? `import ${out.configBinding} from "${out.configImportPath}";`
+        : `import { ${out.configBinding} } from "${out.configImportPath}";`;
+      console.log(pc.dim(`     ${importLine}`));
+      console.log(
+        pc.dim(`     // and add ${out.configBinding} to the ${out.configArrayName} array`),
+      );
     }
   }
 

@@ -4,11 +4,14 @@ import type { Check, Guard, Tool } from "./types";
 /**
  * Top-level harness configuration. Declared in `harness/harness.config.ts`,
  * read by entry-point files (mcp/index.ts, hooks/*.ts).
+ *
+ * `mcp.name` and `mcp.version` default to "harness-mcp" and "0.1.0" — only set
+ * them if your project surfaces the MCP server name somewhere user-visible.
  */
 export type HarnessConfig = {
   mcp?: {
-    name: string;
-    version: string;
+    name?: string;
+    version?: string;
   };
   tools?: Tool[];
   guards?: Guard[];

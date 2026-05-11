@@ -2,4 +2,5 @@ dist/
 node_modules/
 *.tsbuildinfo
 .claude/
+.harness/
 .DS_Store
