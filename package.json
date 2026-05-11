@@ -2,7 +2,28 @@
   "name": "agent-harness-sdk",
   "version": "0.0.0",
   "description": "Primitives for building agent harnesses: tools, guards, checks, hooks, observability.",
-  "private": true,
+  "license": "MIT",
+  "author": "Alex Meza",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mezawebdev/agent-harness-sdk.git"
+  },
+  "homepage": "https://github.com/mezawebdev/agent-harness-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/mezawebdev/agent-harness-sdk/issues"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "agent",
+    "agent-harness",
+    "mcp",
+    "model-context-protocol",
+    "hooks",
+    "tools",
+    "guards",
+    "checks"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
