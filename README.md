@@ -48,12 +48,20 @@ my-project/
 └── .harness/                    ← gitignored audit log + manifest
 ```
 
-Add a typed primitive:
+Add a typed primitive — from your shell:
 
 ```bash
 npx harness add tool fetch-weather
 npx harness add guard block-pushes
 npx harness add check validate-routes
+```
+
+Or from inside Claude Code:
+
+```
+/harness add tool fetch-weather
+/harness add guard block-pushes
+/harness add check validate-routes
 ```
 
 Each `add` scaffolds the file and auto-registers it in `harness.config.ts`. For Claude Code's own primitives (skills, subagents, rules), just ask Claude to create them — the conventions live in `harness.md`, which is auto-loaded into every conversation.
