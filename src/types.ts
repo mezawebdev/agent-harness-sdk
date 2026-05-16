@@ -1,4 +1,4 @@
-import type { z, ZodRawShape } from "zod";
+import type { ZodRawShape } from "zod";
 
 // ──────────────────────────────────────────────────────────────────────────
 // Hook input — shape Claude Code sends via stdin to hook scripts.
@@ -25,7 +25,7 @@ export type ToolResult<T = null> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
-type ToolContent = {
+export type ToolContent = {
   content: Array<{ type: "text"; text: string }>;
 };
 
@@ -41,15 +41,17 @@ export function toolErr(error: string): ToolContent {
   };
 }
 
-export type Tool<Schema extends ZodRawShape = {}> = {
+export type Tool = {
   name: string;
   config: {
     title?: string;
     description: string;
     /** Zod shape describing tool inputs. Omit for tools that take no arguments. */
-    inputSchema?: Schema;
+    inputSchema?: ZodRawShape;
   };
-  handler: (args: z.infer<z.ZodObject<Schema>>) => Promise<ToolContent>;
+  /** Args are typed at author time by `defineTool` based on `inputSchema`;
+   *  erased to `unknown` here so tools with different schemas can share an array. */
+  handler: (args: unknown) => Promise<ToolContent>;
 };
 
 // ──────────────────────────────────────────────────────────────────────────

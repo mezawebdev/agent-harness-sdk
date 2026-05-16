@@ -1,5 +1,5 @@
-import type { ZodRawShape } from "zod";
-import type { Check, Guard, Tool } from "./types";
+import type { z, ZodRawShape } from "zod";
+import type { Check, Guard, Tool, ToolContent } from "./types";
 
 /**
  * Top-level harness configuration. Declared in `harness/harness.config.ts`,
@@ -27,13 +27,31 @@ export function defineHarness(config: HarnessConfig): HarnessConfig {
 }
 
 /**
- * Type-only helper. Preserves the input-schema generic so handler args are
- * inferred correctly. Equivalent to `… satisfies Tool` but reads more clearly.
+ * Author-time shape for `defineTool`. The `Schema` generic flows into the
+ * handler's `args` parameter so tools that declare an `inputSchema` get
+ * typed args, and tools that omit it get a no-argument handler.
  */
-export function defineTool<Schema extends ZodRawShape>(
-  tool: Tool<Schema>,
-): Tool<Schema> {
-  return tool;
+type ToolSpec<Schema extends ZodRawShape> = {
+  name: string;
+  config: {
+    title?: string;
+    description: string;
+    inputSchema?: Schema;
+  };
+  handler: keyof Schema extends never
+    ? () => Promise<ToolContent>
+    : (args: z.infer<z.ZodObject<Schema>>) => Promise<ToolContent>;
+};
+
+/**
+ * Factory for tools. Infers handler args from `inputSchema` at author time,
+ * then erases the schema generic so the result fits into `Tool[]` regardless
+ * of which inputs it declares.
+ */
+export function defineTool<Schema extends ZodRawShape = {}>(
+  spec: ToolSpec<Schema>,
+): Tool {
+  return spec as unknown as Tool;
 }
 
 export function defineGuard(guard: Guard): Guard {
