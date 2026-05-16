@@ -8,6 +8,16 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.0.8] — 2026-05-16
+
+### Fixed
+
+- **`harness init` didn't create the `harness/guards/` directory.** It scaffolded
+  `harness/tools/` and `harness/checks/` but skipped guards, so the first
+  `harness add guard <name>` had to lazily create the parent dir. Now all three
+  primitive directories are created up front and the post-init summary lists
+  guards alongside tools and checks.
+
 ## [0.0.7] — 2026-05-16
 
 ### Fixed

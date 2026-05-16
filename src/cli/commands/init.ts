@@ -51,6 +51,7 @@ export async function init(): Promise<void> {
 
   s.start("Creating directories");
   mkdirSync(join(cwd, "harness/tools"), { recursive: true });
+  mkdirSync(join(cwd, "harness/guards"), { recursive: true });
   mkdirSync(join(cwd, "harness/checks"), { recursive: true });
   mkdirSync(join(cwd, ".claude/skills"), { recursive: true });
   mkdirSync(join(cwd, ".claude/rules"), { recursive: true });
@@ -102,7 +103,7 @@ export async function init(): Promise<void> {
 
   p.note(
     [
-      `${pc.dim("•")} ${pc.bold("harness/")}                  domain code (tools, checks)`,
+      `${pc.dim("•")} ${pc.bold("harness/")}                  domain code (tools, guards, checks)`,
       `${pc.dim("•")} ${pc.bold("harness/harness.config.ts")} declarative config`,
       `${pc.dim("•")} ${pc.bold(".claude/skills/")}           library skills (synced)`,
       `${pc.dim("•")} ${pc.bold(".claude/rules/harness.md")}  conventions (synced)`,
