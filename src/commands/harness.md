@@ -17,15 +17,16 @@ npx --no-install harness $ARGUMENTS
 - Surface the meaningful output (file paths created, registration confirmations, errors).
 - Do **not** paste the full CLI output unless the command failed or there's structured detail worth showing.
 - For `add` commands: after the file is written, open it (Read) and offer to help fill in the TODOs. Do not start implementing without confirmation.
-- For `init` and `update`: summarize what was created/synced in 1–2 sentences. If `init` reports it would overwrite existing files, stop and surface that to the user.
+- For `update`: summarize what was created/synced in 1–2 sentences.
 
 ## Subcommands
 
 | Command | What it does |
 |---|---|
-| `/harness init` | Bootstrap a harness in this project. May prompt for overwrite if files exist. |
 | `/harness update` | Update library skills + rules + commands from agent-harness-sdk (preserves local edits via manifest). |
 | `/harness add <type> <name>` | Scaffold a new typed primitive. Types: `tool`, `guard`, `check`. Names must be kebab-case. |
+
+`init` is intentionally not exposed here: this slash command is installed *by* `harness init`, so the bootstrap step must be run from the shell (`npx harness init`). If the user asks for `/harness init`, tell them to run `npx harness init` from the project root instead.
 
 ## Constraints
 

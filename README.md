@@ -164,14 +164,15 @@ yarn add tsx
 
 ### Or: invoke from Claude
 
-`harness init` ships a `/harness` slash command into `.claude/commands/`. From inside Claude Code you can:
+`harness init` ships a `/harness` slash command into `.claude/commands/`. After the initial bootstrap, you can drive the rest of the CLI from inside Claude Code:
 
 ```
-/harness init
 /harness update
 /harness add tool fetch-weather
 /harness add guard block-pushes
 ```
+
+The initial `npx harness init` has to run from your shell — the slash command itself is one of the files that step installs, so it doesn't exist yet at first-run.
 
 ---
 
