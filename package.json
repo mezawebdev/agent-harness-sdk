@@ -1,6 +1,6 @@
 {
   "name": "agent-harness-sdk",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Primitives for building agent harnesses: tools, guards, checks, hooks, observability.",
   "license": "MIT",
   "author": "Alex Meza",
