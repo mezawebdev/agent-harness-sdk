@@ -8,6 +8,20 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.1.2] — 2026-05-22
+
+### Changed
+
+- **SessionStart drift hook is now actually visible.** Previous releases wrote only
+  to `additionalContext`, which enters Claude's system context but isn't rendered
+  in Claude Code's chat UI — drift was effectively invisible. The hook now also
+  writes a one-line stderr message (surfaced in Claude Code's hook output area)
+  and rewrites the context injection as an imperative instruction telling Claude
+  to surface drift to the user at the start of its next response.
+- **Drift message reads as an action, not a diagnostic.** Dropped version numbers
+  from the user-facing text: "Your harness was updated. Run `/harness update` to
+  get the latest changes."
+
 ## [0.1.1] — 2026-05-22
 
 ### Added
