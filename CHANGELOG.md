@@ -8,6 +8,14 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-05-22
+
+### Added
+
+- `/harness list` subcommand (alias `/harness help`) — surfaces a curated reference
+  of every slash-command subcommand with example usage. Backed by `npx harness list`.
+  The slash command also routes empty args and unrecognized first words to it.
+
 ## [0.1.0] — 2026-05-22
 
 ### Added
