@@ -1,10 +1,10 @@
-/** Shared sync logic used by `harness init` and `harness sync`.
+/** Shared sync logic used by `harness init` and `harness update`.
  *
- * Tracks installed files in a `.harness/installed.json` manifest with
- * per-file checksums. On re-sync, files whose current checksum matches the
- * manifest are safely overwritten. Files that diverge (user-edited) are
- * skipped with a warning. Files with no manifest entry but already on disk
- * are also skipped (conservative — could be user content).
+ * Tracks installed files in `harness/harness.lock` with per-file checksums.
+ * On re-sync, files whose current checksum matches the manifest are safely
+ * overwritten. Files that diverge (user-edited) are skipped with a warning.
+ * Files with no manifest entry but already on disk are also skipped
+ * (conservative — could be user content).
  */
 import {
   copyFileSync,

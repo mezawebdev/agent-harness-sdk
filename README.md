@@ -39,6 +39,7 @@ Restart Claude Code from the project directory and approve the new MCP server an
 my-project/
 ├── harness/
 │   ├── harness.config.ts        ← declarative config: which tools/guards/checks are active
+│   ├── harness.lock             ← synced-content manifest (git-tracked; updated by /harness update)
 │   ├── tools/                   ← MCP tools the agent can call
 │   ├── guards/                  ← PreToolUse filters
 │   └── checks/                  ← PostToolUse validators
@@ -47,7 +48,7 @@ my-project/
 │   ├── rules/harness.md         ← universal conventions + authoring contracts (synced)
 │   └── commands/harness.md      ← /harness slash command (synced)
 ├── .mcp.json                    ← MCP server registration
-└── .harness/                    ← gitignored audit log + manifest
+└── .harness/                    ← gitignored audit log + evolve state
 ```
 
 Scaffold a harness primitive — from inside Claude Code:
