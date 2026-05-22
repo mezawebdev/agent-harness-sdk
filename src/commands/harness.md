@@ -15,9 +15,9 @@ Inspect the first word of `$ARGUMENTS` and dispatch:
 | `add` | Shell out to CLI (see "CLI-backed subcommands" below) |
 | `update` | Shell out to CLI (see "CLI-backed subcommands" below) |
 | `evolve` | Run the evolve flow (see "Harness evolve" below) |
-| empty / `help` / `--help` | Run `npx --no-install harness --help` and surface the output |
+| `list` / `help` / `--help` / empty | Run `npx --no-install harness list` and surface the output verbatim |
 
-If the first word is unrecognized, list the valid subcommands and stop.
+If the first word is unrecognized, run `npx --no-install harness list` to show the user what's available and stop.
 
 ## Subcommand reference
 
@@ -26,6 +26,7 @@ If the first word is unrecognized, list the valid subcommands and stop.
 | `/harness add <type> <name>` | Scaffold a new primitive. Types: `tool`, `guard`, `check`. Names must be kebab-case. |
 | `/harness update` | Sync library skills, rules, and the slash command from agent-harness-sdk (preserves local edits via manifest). |
 | `/harness evolve` | Read-only audit of the codebase + harness — proposes additions, removals, drift fixes, and architectural smells. Tiered by confidence. |
+| `/harness list` (alias `help`) | Show this list of subcommands with examples. Backed by `npx harness list`. |
 
 `init` is intentionally not routed here: this slash command is installed *by* `harness init`, so the bootstrap step must run from the shell. If the user asks for `/harness init`, tell them to run `npx harness init` from the project root instead.
 

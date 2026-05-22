@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { add } from "./commands/add";
 import { init } from "./commands/init";
+import { list } from "./commands/list";
 import { update } from "./commands/update";
 
 const program = new Command();
@@ -33,6 +34,13 @@ program
   .argument("<name>", "kebab-case name")
   .action(async (type: string, name: string) => {
     await add(type, name);
+  });
+
+program
+  .command("list")
+  .description("List all /harness subcommands with examples")
+  .action(() => {
+    list();
   });
 
 program.parseAsync(process.argv).catch((err) => {
