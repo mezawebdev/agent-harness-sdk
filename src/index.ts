@@ -61,15 +61,6 @@ export type { HarnessConfig } from "./define";
 export { protectEnvFiles } from "./guards/protect-env-files";
 
 // ──────────────────────────────────────────────────────────────────────────
-// Universal tools (library-provided)
-// ──────────────────────────────────────────────────────────────────────────
-export { harnessStatus } from "./tools/harness-status";
-export {
-  evolveRecordRun,
-  evolveDismissFinding,
-} from "./tools/evolve-state";
-
-// ──────────────────────────────────────────────────────────────────────────
 // Observability
 // ──────────────────────────────────────────────────────────────────────────
 export { logEvent, readLog } from "./observability/log";

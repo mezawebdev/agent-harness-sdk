@@ -3,28 +3,19 @@
  *  that get merged into existing user content). */
 
 export function harnessConfigTemplate(): string {
-  return `import {
-  defineHarness,
-  evolveDismissFinding,
-  evolveRecordRun,
-  harnessStatus,
-  protectEnvFiles,
-} from "agent-harness-sdk";
+  return `import { defineHarness, protectEnvFiles } from "agent-harness-sdk";
 
 export default defineHarness({
   // mcp: { name: "my-app", version: "0.1.0" }, // optional; defaults to "harness-mcp" v0.1.0
   tools: [
-    harnessStatus,
-    evolveRecordRun,
-    evolveDismissFinding,
-    // Add user tools here. Scaffold with: harness add tool <name>
+    // Add tools here. Scaffold with: /harness add tool <name>
   ],
   guards: [
     protectEnvFiles,
-    // Add more guards here. Scaffold with: harness add guard <name>
+    // Add guards here. Scaffold with: /harness add guard <name>
   ],
   checks: [
-    // Add user checks here. Scaffold with: harness add check <name>
+    // Add checks here. Scaffold with: /harness add check <name>
   ],
 });
 `;
