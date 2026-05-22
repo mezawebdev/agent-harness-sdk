@@ -43,9 +43,8 @@ my-project/
 │   ├── guards/                  ← PreToolUse filters
 │   └── checks/                  ← PostToolUse validators
 ├── .claude/
-│   ├── settings.json            ← PreToolUse + PostToolUse hooks
-│   ├── skills/                  ← 3 author meta-skills + harness-evolve (synced)
-│   ├── rules/harness.md         ← universal conventions (synced)
+│   ├── settings.json            ← PreToolUse + PostToolUse + SessionStart hooks
+│   ├── rules/harness.md         ← universal conventions + authoring contracts (synced)
 │   └── commands/harness.md      ← /harness slash command (synced)
 ├── .mcp.json                    ← MCP server registration
 └── .harness/                    ← gitignored audit log + manifest
@@ -70,7 +69,7 @@ npx harness add check validate-routes
 Audit the harness:
 
 ```
-/harness-evolve
+/harness evolve
 ```
 
 Audits your codebase and harness side by side. Surfaces tiered suggestions: patterns worth enforcing, dead components to remove, drift to fix, and architectural smells worth a human look. Read-only — nothing scaffolds without your approval.
