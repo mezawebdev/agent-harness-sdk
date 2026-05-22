@@ -36,7 +36,7 @@ function scaffoldTool(name: string): Scaffold {
     filePath: `harness/tools/${name}.ts`,
     configBinding: camel,
     configArrayName: "tools",
-    configImportPath: `./tools/${name}.js`,
+    configImportPath: `./tools/${name}`,
     configIsDefault: true,
     content: `import { defineTool, toolErr, toolOk, z } from "agent-harness-sdk";
 
@@ -62,7 +62,7 @@ function scaffoldGuard(name: string): Scaffold {
     filePath: `harness/guards/${name}.ts`,
     configBinding: camel,
     configArrayName: "guards",
-    configImportPath: `./guards/${name}.js`,
+    configImportPath: `./guards/${name}`,
     configIsDefault: false,
     content: `import { defineGuard, guardAllow, guardDeny } from "agent-harness-sdk";
 
@@ -89,7 +89,7 @@ function scaffoldCheck(name: string): Scaffold {
     filePath: `harness/checks/${name}.ts`,
     configBinding: camel,
     configArrayName: "checks",
-    configImportPath: `./checks/${name}.js`,
+    configImportPath: `./checks/${name}`,
     configIsDefault: false,
     content: `import { defineCheck, checkFail, checkOk } from "agent-harness-sdk";
 
