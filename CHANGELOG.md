@@ -8,6 +8,15 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.1.3] — 2026-05-22
+
+### Changed
+
+- **Drift notice now renders as a system-style line.** Claude is instructed to
+  output the drift message as a blockquote with italic + shield emoji
+  (`> 🛡️ _Your harness was updated — run /harness update to get the latest changes._`),
+  visually separating it from the rest of its reply.
+
 ## [0.1.2] — 2026-05-22
 
 ### Changed
