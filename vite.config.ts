@@ -11,6 +11,7 @@ export default defineConfig({
         index: "src/index.ts",
         "hooks/pre-tool-use": "src/hooks/pre-tool-use.ts",
         "hooks/post-tool-use": "src/hooks/post-tool-use.ts",
+        "hooks/session-start": "src/hooks/session-start.ts",
         "mcp/start": "src/mcp/start.ts",
         "cli/index": "src/cli/index.ts",
       },

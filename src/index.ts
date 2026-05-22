@@ -1,4 +1,32 @@
-export const VERSION = "0.0.0";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+/** Walk up from this file looking for agent-harness-sdk's own package.json.
+ *  Survives any bundle output layout (src/, dist/, dist/_chunks/, etc.). */
+function readPackageVersion(): string {
+  let dir = dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 6; i++) {
+    const pkgPath = join(dir, "package.json");
+    if (existsSync(pkgPath)) {
+      try {
+        const pkg = JSON.parse(readFileSync(pkgPath, "utf-8")) as {
+          name?: string;
+          version?: string;
+        };
+        if (pkg.name === "agent-harness-sdk") return pkg.version ?? "0.0.0";
+      } catch {
+        // keep walking
+      }
+    }
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return "0.0.0";
+}
+
+export const VERSION = readPackageVersion();
 
 // ──────────────────────────────────────────────────────────────────────────
 // Re-exports

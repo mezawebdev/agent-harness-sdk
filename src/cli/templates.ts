@@ -33,9 +33,18 @@ export function harnessHookEntries() {
       },
     ],
   });
+  const matcherlessEntryFor = (hookFile: string) => ({
+    hooks: [
+      {
+        type: "command",
+        command: `npx --no-install tsx $CLAUDE_PROJECT_DIR/node_modules/agent-harness-sdk/dist/hooks/${hookFile}`,
+      },
+    ],
+  });
   return {
     PreToolUse: [entryFor("pre-tool-use.js")],
     PostToolUse: [entryFor("post-tool-use.js")],
+    SessionStart: [matcherlessEntryFor("session-start.js")],
   };
 }
 

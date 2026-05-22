@@ -36,6 +36,7 @@
     },
     "./hooks/pre-tool-use": "./dist/hooks/pre-tool-use.js",
     "./hooks/post-tool-use": "./dist/hooks/post-tool-use.js",
+    "./hooks/session-start": "./dist/hooks/session-start.js",
     "./mcp/start": "./dist/mcp/start.js"
   },
   "files": [
@@ -43,7 +44,6 @@
     "src/skills",
     "src/rules",
     "src/commands",
-    "scripts",
     "README.md"
   ],
   "bin": {
@@ -52,8 +52,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
-    "typecheck": "tsc --noEmit",
-    "postinstall": "node ./scripts/postinstall.js"
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "tsx": "^4.0.0"
