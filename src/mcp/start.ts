@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { HarnessConfig } from "../define";
+import { loadProjectEnv } from "../env";
 import { projectDir } from "../hooks/utils";
 import { createMcpServer } from "./server";
 
@@ -9,7 +10,9 @@ const DEFAULT_MCP_NAME = "harness-mcp";
 const DEFAULT_MCP_VERSION = "0.1.0";
 
 async function main() {
-  const configPath = join(projectDir(), "harness", "harness.config.ts");
+  const dir = projectDir();
+  loadProjectEnv(dir);
+  const configPath = join(dir, "harness", "harness.config.ts");
 
   if (!existsSync(configPath)) {
     process.stderr.write(

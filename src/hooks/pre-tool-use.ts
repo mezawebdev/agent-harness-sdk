@@ -2,11 +2,14 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { HarnessConfig } from "../define";
+import { loadProjectEnv } from "../env";
 import { createPreToolUseDispatcher } from "./dispatch";
 import { projectDir } from "./utils";
 
 async function main() {
-  const configPath = join(projectDir(), "harness", "harness.config.ts");
+  const dir = projectDir();
+  loadProjectEnv(dir);
+  const configPath = join(dir, "harness", "harness.config.ts");
 
   if (!existsSync(configPath)) {
     process.stderr.write(
