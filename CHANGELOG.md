@@ -8,6 +8,17 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.1.4] — 2026-05-22
+
+### Changed
+
+- **Sync manifest moved from `.harness/installed.json` to `harness/harness.lock`**
+  and is now git-tracked. The previous gitignored / per-developer location meant
+  teammates who cloned a project never got a manifest, so the SessionStart drift
+  hook silently exited for them. Tracking the manifest in git lets new
+  collaborators inherit it on clone and get drift detection from session one.
+  Auto-migrates from the legacy path on first read.
+
 ## [0.1.3] — 2026-05-22
 
 ### Changed
