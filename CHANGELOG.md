@@ -8,6 +8,44 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.1.0] — 2026-05-22
+
+### Added
+
+- `/harness evolve` subcommand of the unified `/harness` slash command — read-only audit
+  of the codebase + harness, tiered proposals.
+- SessionStart hook that surfaces a managed-content drift warning when the installed
+  manifest version doesn't match the SDK. Both Claude and the user see the notice on the
+  next session, with a pointer to run `npx harness update`.
+- Project `.env` loading at hook and MCP startup. `HARNESS_LOG_DISABLED` and
+  `HARNESS_LOG_PATH` now work from a project `.env` file in addition to the shell env.
+- `dotenv` as a runtime dependency.
+
+### Changed
+
+- **`/harness` is now the only slash-menu entry.** Three `harness-author-*` skills
+  consolidated into `harness.md` rule (authoring tools/guards/checks contracts);
+  `harness-evolve` skill moved inline into `/harness evolve`. Slash menu drops from
+  5 entries to 1.
+- **Default `harness.config.ts` template no longer imports framework MCP tools.**
+  `harnessStatus`, `evolveRecordRun`, and `evolveDismissFinding` are now registered
+  automatically at MCP server startup.
+- **Scaffolded `harness/<type>/<name>.ts` imports no longer include `.js` extensions.**
+- **README rewritten with agent-first framing.** `/harness` is the primary surface, CLI
+  is the shell fallback. Dropped CLI, "What's bundled", library architecture, roadmap,
+  and license sections.
+- **`VERSION` constant** reads `package.json` at runtime (was hardcoded `"0.0.0"`).
+
+### Removed
+
+- **postinstall hook** — replaced by the SessionStart drift hook. Avoids supply-chain
+  concerns, pnpm `approve-builds` friction, and the surprise side effects of writing
+  files on `npm install`.
+- `harnessStatus`, `evolveRecordRun`, `evolveDismissFinding` from the public package
+  exports — now framework-internal.
+- `harness-author-tool`, `harness-author-guard`, `harness-author-check`, `harness-evolve`
+  skill files.
+
 ## [0.0.8] — 2026-05-16
 
 ### Fixed
