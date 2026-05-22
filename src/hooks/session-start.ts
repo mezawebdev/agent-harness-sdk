@@ -22,11 +22,16 @@ function main(): void {
   );
 
   // (2) additionalContext — imperative so Claude surfaces it in chat.
+  //     Force a blockquote + italic + shield emoji so the line reads as a
+  //     system note, not part of Claude's prose response.
   const additionalContext =
     "[agent-harness-sdk] The harness was updated. " +
-    "IMPORTANT: At the very start of your next response to the user, tell them: " +
-    '"Your harness was updated — run `/harness update` to get the latest changes." ' +
-    "Then proceed with their actual request.";
+    "IMPORTANT: At the very start of your next response to the user, output " +
+    "EXACTLY this line as the first content (verbatim, including the leading " +
+    "`> ` blockquote marker, the shield emoji, and the surrounding underscores " +
+    "for italics):\n\n" +
+    "> 🛡️ _Your harness was updated — run `/harness update` to get the latest changes._\n\n" +
+    "Then proceed with their actual request on the next line.";
 
   process.stdout.write(
     JSON.stringify({
