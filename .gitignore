@@ -1,6 +1,6 @@
 dist/
 node_modules/
 *.tsbuildinfo
-.claude/agent-changes-main.jsonl
+.claude/agent-changes-*.jsonl
 .harness/
 .DS_Store
