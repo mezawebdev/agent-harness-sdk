@@ -34,6 +34,11 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js",
+      "default": "./dist/testing/index.js"
+    },
     "./hooks/pre-tool-use": "./dist/hooks/pre-tool-use.js",
     "./hooks/post-tool-use": "./dist/hooks/post-tool-use.js",
     "./hooks/session-start": "./dist/hooks/session-start.js",
@@ -52,17 +57,20 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "peerDependencies": {
     "tsx": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/picomatch": "^4.0.3",
     "tsx": "^4.21.0",
     "typescript": "^5",
     "vite": "^8.0.11",
-    "vite-plugin-dts": "^5.0.0"
+    "vite-plugin-dts": "^5.0.0",
+    "vitest": "^4.1.7"
   },
   "dependencies": {
     "@clack/prompts": "^1.3.0",
@@ -70,6 +78,7 @@
     "commander": "^14.0.3",
     "dotenv": "^17.4.2",
     "picocolors": "^1.1.1",
+    "picomatch": "^4.0.4",
     "zod": "^4.3.6"
   }
 }

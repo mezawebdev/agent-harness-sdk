@@ -82,11 +82,11 @@ A **guard** is a pre-action policy. It inspects what Claude is about to do (tool
 **Shape:**
 
 ```ts
-import { defineGuard, guardAllow, guardDeny } from "agent-harness-sdk";
+import { defineGuard, guardAllow, guardDeny, Tools } from "agent-harness-sdk";
 
 export const myGuard = defineGuard({
   name: "my-guard",
-  matches: (input) => input.tool_name === "Bash",  // fast filter
+  tools: [Tools.Bash],          // only inspect Bash calls
   run: async (input) => {
     const command = (input.tool_input as { command?: string })?.command ?? "";
     if (command.includes("rm -rf")) return guardDeny("rm -rf is blocked by my-guard");
@@ -95,10 +95,17 @@ export const myGuard = defineGuard({
 });
 ```
 
+**Activation conditions** decide *when* a guard runs. Declare any combination — all provided must pass (AND); within an array, any member matches (OR). Omit them all to run on every tool call.
+
+- **`tools`** — tool-name allowlist. Use the `Tools` const (`Tools.Edit`) for built-ins; raw strings (e.g. `"mcp__server__tool"`) also work.
+- **`files`** — glob patterns matched against `tool_input.file_path` (picomatch). A call with no file path (e.g. Bash) never matches.
+- **`when`** — custom `(input) => boolean` predicate for filters the above can't express.
+
+> `matches` is **deprecated** — prefer the conditions above. It still works (ANDed with any conditions) but will be removed.
+
 **Conventions:**
 
-- **`matches()` is a fast filter.** Don't do work in matches; only tool_name/path checks.
-- **`run()` is async and may do real work** (read a file, query state).
+- **Conditions are a coarse filter; `run()` makes the call.** Put dynamic logic (reading a file, querying state) in `run`, which may be async and return `guardAllow()` or `guardDeny()`.
 - **Reason strings are surfaced verbatim to Claude.** Prefix with the guard name. Make them actionable ("ask the user to do this manually").
 - **Don't over-enforce.** Every false positive blocks legitimate work.
 
@@ -113,14 +120,13 @@ A **check** is a post-action validator. It runs after a tool completes (typicall
 **Shape:**
 
 ```ts
-import { defineCheck, checkFail, checkOk, projectDir } from "agent-harness-sdk";
+import { defineCheck, checkFail, checkOk, projectDir, Tools } from "agent-harness-sdk";
 import { execSync } from "node:child_process";
-
-const DOMAIN_PATH = /\/services\/([^/]+)\.ts$/;
 
 export const validateServices = defineCheck({
   name: "validate-services",
-  matches: (filePath) => DOMAIN_PATH.test(filePath),
+  tools: [Tools.Edit, Tools.Write, Tools.MultiEdit],
+  files: ["**/services/*.ts"],
   run: async (filePath) => {
     try {
       execSync(`npx --no-install eslint "${filePath}"`, { stdio: "pipe", cwd: projectDir() });
@@ -135,7 +141,7 @@ export const validateServices = defineCheck({
 
 **Conventions:**
 
-- **`matches(filePath, input)` is a fast filter** — regex against the file path. Return false quickly for unrelated edits.
+- **Checks use the same conditions as guards** — `tools`, `files`, `when`. Scope a check to the edits it cares about with `files`. (`matches` is likewise deprecated here.)
 - **`run(filePath, input)` does the validation.** Can shell out (linter, test runner) or do pure JS inspection.
 - **Failure messages are actionable.** Include enough context for Claude to act — not just "validation failed".
 - **Don't duplicate logic with tools.** Extract a primitive function both call.
@@ -143,7 +149,7 @@ export const validateServices = defineCheck({
 **Optional `on` field** for non-default events (default is `post-tool-use`):
 
 ```ts
-defineCheck({ name: "end-of-turn-audit", on: "stop", matches: () => true, run: async () => {} })
+defineCheck({ name: "end-of-turn-audit", on: "stop", run: async () => checkOk() })
 ```
 
 Scaffold: `/harness add check <name>`.

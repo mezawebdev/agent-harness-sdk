@@ -68,11 +68,10 @@ function scaffoldGuard(name: string): Scaffold {
 
 export const ${camel} = defineGuard({
   name: "${name}",
-  matches: (_input) => {
-    // TODO: return true ONLY for tool calls this guard should inspect.
-    // Keep this fast — runs on every tool call.
-    return false;
-  },
+  // Optional conditions — all must match; omit to run on every call.
+  //   tools: [Tools.Edit, Tools.Write, Tools.MultiEdit],
+  //   files: ["**/*.ts"],
+  //   when: (input) => true,
   async run(_input) {
     // TODO: decide whether to allow or deny.
     // return guardDeny("${name}: <why this was blocked>");
@@ -95,10 +94,9 @@ function scaffoldCheck(name: string): Scaffold {
 
 export const ${camel} = defineCheck({
   name: "${name}",
-  matches: (_filePath) => {
-    // TODO: return true for paths this check should inspect.
-    return false;
-  },
+  // Optional conditions — all must match; omit to run on every call.
+  //   tools: [Tools.Edit, Tools.Write, Tools.MultiEdit],
+  //   files: ["**/services/*.ts"],
   async run(_filePath) {
     // TODO: validate the resulting state.
     // return checkFail("${name}: <what's wrong>");

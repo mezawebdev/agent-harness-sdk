@@ -9,6 +9,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: "src/index.ts",
+        "testing/index": "src/testing/index.ts",
         "hooks/pre-tool-use": "src/hooks/pre-tool-use.ts",
         "hooks/post-tool-use": "src/hooks/post-tool-use.ts",
         "hooks/session-start": "src/hooks/session-start.ts",
@@ -25,6 +26,7 @@ export default defineConfig({
         "commander",
         "@clack/prompts",
         "picocolors",
+        "picomatch",
       ],
       output: {
         entryFileNames: "[name].js",

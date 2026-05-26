@@ -41,6 +41,7 @@ export { z } from "zod";
 // ──────────────────────────────────────────────────────────────────────────
 export type {
   HookInput,
+  Conditions,
   Tool,
   ToolResult,
   Guard,
@@ -50,6 +51,8 @@ export type {
   CheckResult,
   CheckPhase,
 } from "./types";
+export { Tools } from "./tool-names";
+export type { ToolName } from "./tool-names";
 
 // ──────────────────────────────────────────────────────────────────────────
 // Result helpers — build the standard envelope for each primitive

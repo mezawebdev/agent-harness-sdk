@@ -1,5 +1,6 @@
 import { logEvent } from "../observability/log";
 import type { Check, Guard } from "../types";
+import { shouldRun } from "../conditions";
 import { block, pass, readHookInput } from "./utils";
 
 /**
@@ -15,7 +16,10 @@ export async function createPreToolUseDispatcher(
   const filePath = input.tool_input?.file_path;
   const toolName = input.tool_name;
 
-  const active = guards.filter((g) => g.matches(input));
+  // shouldRun covers tools/files/when; matches?.() honors the deprecated predicate.
+  const active = guards.filter(
+    (g) => shouldRun(g, input) && (g.matches?.(input) ?? true),
+  );
   if (active.length === 0) {
     logEvent("pre-tool-use.passed", {
       tool_name: toolName,
@@ -66,7 +70,10 @@ export async function createPostToolUseDispatcher(
   const filePath = input.tool_input?.file_path ?? "";
   const toolName = input.tool_name;
 
-  const active = checks.filter((c) => c.matches(filePath, input));
+  // shouldRun covers tools/files/when; matches?.() honors the deprecated predicate.
+  const active = checks.filter(
+    (c) => shouldRun(c, input) && (c.matches?.(filePath, input) ?? true),
+  );
   if (active.length === 0) {
     logEvent("post-tool-use.passed", {
       tool_name: toolName,
