@@ -8,6 +8,28 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-05-26
+
+### Added
+
+- **Declarative activation conditions for guards and checks** — `tools` (tool-name
+  allowlist), `files` (picomatch globs against `file_path`), and `when` (custom
+  predicate). A primitive runs only when all declared conditions match, so most no
+  longer need a hand-written `matches` predicate.
+- **`Tools` constant and `ToolName` type** for autocompleting built-in tool names
+  (`Tools.Edit`, …) in conditions, while still accepting arbitrary strings such as
+  MCP tool names.
+- **`agent-harness-sdk/testing` entry point** for testing guards/checks: `runGuard`
+  and `runCheck` run the real conditions + `run()` pipeline and return an ergonomic
+  result (with an optional `{ projectDir }`), plus payload builders `tool`,
+  `writeTool`, `editTool`, `multiEditTool`, and `bashTool`.
+
+### Deprecated
+
+- **`matches` on guards and checks** — use `tools`/`files`/`when` instead. Now
+  optional and still honored (ANDed with any conditions); to be removed in a future
+  release.
+
 ## [0.1.4] — 2026-05-22
 
 ### Changed
