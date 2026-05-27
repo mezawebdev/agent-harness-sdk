@@ -4,3 +4,5 @@ node_modules/
 .claude/agent-changes-*.jsonl
 .harness/
 .DS_Store
+docs/**/specs/
+docs/specs/
