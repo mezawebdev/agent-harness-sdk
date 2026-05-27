@@ -30,12 +30,30 @@ export type ToolContent = {
   content: Array<{ type: "text"; text: string }>;
 };
 
+/**
+ * Build a success envelope from a tool handler: `{ ok: true, data }`.
+ * Return structured data, not prose — the caller reads the JSON.
+ *
+ * @example
+ * ```ts
+ * return toolOk({ city: "Berlin", tempF: 72 });
+ * ```
+ */
 export function toolOk<T>(data: T): ToolContent {
   return {
     content: [{ type: "text", text: JSON.stringify({ ok: true, data }) }],
   };
 }
 
+/**
+ * Build a failure envelope from a tool handler: `{ ok: false, error }`.
+ * Prefer returning this over throwing; the message is surfaced verbatim.
+ *
+ * @example
+ * ```ts
+ * if (!city) return toolErr("city is required");
+ * ```
+ */
 export function toolErr(error: string): ToolContent {
   return {
     content: [{ type: "text", text: JSON.stringify({ ok: false, error }) }],
@@ -82,10 +100,30 @@ export type Conditions = {
 
 export type GuardResult = { allow: true } | { allow: false; reason: string };
 
+/**
+ * Allow the tool call through. Return from a guard's `run` when the call is OK.
+ * Takes no argument and prompts nothing back to Claude — the allow path stays
+ * silent so it adds no noise to the agent's context.
+ *
+ * @example
+ * ```ts
+ * return guardAllow();
+ * ```
+ */
 export function guardAllow(): GuardResult {
   return { allow: true };
 }
 
+/**
+ * Veto the tool call — it never runs and `reason` is prompted back to Claude
+ * (the only guard path that surfaces text). Prefix the reason with the guard
+ * name and make it actionable.
+ *
+ * @example
+ * ```ts
+ * return guardDeny("block-pushes: pushing is disabled; ask the user to push manually.");
+ * ```
+ */
 export function guardDeny(reason: string): GuardResult {
   return { allow: false, reason };
 }
@@ -110,10 +148,30 @@ export type Guard = Conditions & {
 
 export type CheckResult = { ok: true } | { ok: false; message: string };
 
+/**
+ * Pass the check. Return from a check's `run` when the resulting state is
+ * valid. Takes no argument and prompts nothing back to Claude — the passing
+ * path stays silent so it adds no noise to the agent's context.
+ *
+ * @example
+ * ```ts
+ * return checkOk();
+ * ```
+ */
 export function checkOk(): CheckResult {
   return { ok: true };
 }
 
+/**
+ * Fail the check — `message` is prompted back to Claude as actionable feedback
+ * to fix the file on the next iteration (this is the only check path that
+ * surfaces text). Include enough context to act on.
+ *
+ * @example
+ * ```ts
+ * return checkFail(`lint-services failed:\n${output}`);
+ * ```
+ */
 export function checkFail(message: string): CheckResult {
   return { ok: false, message };
 }
