@@ -8,6 +8,13 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.2.2] — 2026-05-28
+
+### Added
+
+- **Favicon** on the documentation site — the library icon now appears in the
+  browser tab.
+
 ## [0.2.1] — 2026-05-28
 
 ### Added

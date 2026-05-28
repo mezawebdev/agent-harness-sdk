@@ -11,7 +11,17 @@ export default withMermaid(
       "Primitives for building agent harnesses: guards, checks, and tools for Claude Code.",
     cleanUrls: true,
     lastUpdated: true,
-    head: [["meta", { name: "theme-color", content: "#161618" }]],
+    head: [
+      ["meta", { name: "theme-color", content: "#161618" }],
+      [
+        "link",
+        {
+          rel: "icon",
+          type: "image/svg+xml",
+          href: "/agent-harness-sdk/agent-harness-sdk-icon.svg",
+        },
+      ],
+    ],
 
     themeConfig: {
       logo: "/agent-harness-sdk-icon.svg",
