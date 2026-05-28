@@ -8,6 +8,21 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-05-28
+
+### Added
+
+- **`/harness health` command** — a one-shot health report covering harness
+  drift, registered primitives, and recent hook activity. Ask Claude to run it
+  mid-session to spot config decay.
+- **`@example` JSDoc on the public API** — `defineHarness`, `defineTool`,
+  `defineGuard`, `defineCheck`, and the result helpers (`toolOk`/`toolErr`,
+  `guardAllow`/`guardDeny`, `checkOk`/`checkFail`) now ship usage examples in
+  their TSDoc, surfacing real call-site patterns in editor tooltips.
+- **Documentation website** under `/agent-harness-sdk/` — concept page with an
+  agentic-loop diagram, brief guides for each primitive, copy-paste examples,
+  testing + CLI guides, and a TypeDoc-generated API reference.
+
 ## [0.2.0] — 2026-05-26
 
 ### Added
