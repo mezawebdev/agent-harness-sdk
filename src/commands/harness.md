@@ -15,6 +15,7 @@ Inspect the first word of `$ARGUMENTS` and dispatch:
 | `add` | Shell out to CLI (see "CLI-backed subcommands" below) |
 | `update` | Shell out to CLI (see "CLI-backed subcommands" below) |
 | `evolve` | Run the evolve flow (see "Harness evolve" below) |
+| `health` | Run the health flow (see "Harness health" below) |
 | `list` / `help` / `--help` / empty | Run `npx --no-install harness list` and surface the output verbatim |
 
 If the first word is unrecognized, run `npx --no-install harness list` to show the user what's available and stop.
@@ -26,6 +27,7 @@ If the first word is unrecognized, run `npx --no-install harness list` to show t
 | `/harness add <type> <name>` | Scaffold a new primitive. Types: `tool`, `guard`, `check`. Names must be kebab-case. |
 | `/harness update` | Sync library skills, rules, and the slash command from agent-harness-sdk (preserves local edits via manifest). |
 | `/harness evolve` | Read-only audit of the codebase + harness — proposes additions, removals, drift fixes, and architectural smells. Tiered by confidence. |
+| `/harness health` | Validate every registered guard/check/tool. Structural soundness for all three; for guards/checks, synthesizes inputs and triggers them through the real pipeline to confirm the boundary holds. Read-only — tool handlers are never executed. |
 | `/harness list` (alias `help`) | Show this list of subcommands with examples. Backed by `npx harness list`. |
 
 `init` is intentionally not routed here: this slash command is installed *by* `harness init`, so the bootstrap step must run from the shell. If the user asks for `/harness init`, tell them to run `npx harness init` from the project root instead.
@@ -174,6 +176,61 @@ When run on a loop (e.g. `/loop 1h /harness evolve`):
 - **Tier honestly.** Speculative ≠ actionable.
 - **Surface uncertainty.** If unsure whether something is dead, say so and ask.
 - **Honor `.claude/rules/harness.md`.** All proposals must be consistent with the project's stated conventions.
+
+## Harness health
+
+When the user types `/harness health`, validate that every registered primitive actually works. **Tool handlers are NEVER executed** — tools are validated structurally only, and the report must say so explicitly.
+
+### Procedure
+
+1. **Run the structural pass.** From the project root:
+   `npx --no-install harness health`
+   Parse the JSON envelope (`{ ok, data: { primitives, drift } }`). If `ok` is false, surface the `error` verbatim and stop.
+
+2. **Report structural failures and drift first.** For any primitive with `structural.passed: false`, surface its `issues`. For each entry in `drift.unregistered`, flag it: the file exists under `harness/` but its primitive is not in `harness.config.ts`, so it silently does nothing — tell the user to register it. Also report any entries in `unloadable` — a primitive file under `harness/` that failed to import (surface its `file` and `error`); the primitive can't run at all until it loads.
+
+3. **Trigger each guard and check.** For every guard/check in the inventory:
+   - Read its source (the file under `harness/guards/` or `harness/checks/`) to infer intent.
+   - Synthesize a **positive** trigger — a `HookInput` that *should* set it off (deny / fail) — and a **negative** trigger — one that should pass.
+   - Run each:
+     `npx --no-install harness health trigger <guard|check> <name> --input '<hookInputJson>'`
+     where the JSON is a `HookInput`, e.g. `{"tool_name":"Write","tool_input":{"file_path":"/repo/.env"}}`.
+   - Judge the returned `{ type, active, denied|failed, reason|message }` against the intent. A positive trigger that returns `denied:false`/`failed:false` (or `active:false`) is a **failure** — the boundary didn't hold.
+   - If you cannot confidently infer a safe input from the source, report "could not infer a safe trigger" rather than guessing.
+
+4. **Report tools structurally only.** Show each tool's `structural` result with the explicit line: **"handler not executed — inspected only."** Never run a tool.
+
+5. **Compose the report** using the format below. Always show the actual input(s) tried and the output(s) returned.
+
+### Report format
+
+```
+## Harness health — N primitives (X ✓ · Y ⚠ · Z ✗)
+
+### Guards
+✓ protect-env-files
+   trigger ↘ Write {file_path: "/repo/.env"}      → denied ✓ "blocked by protect-env-files"
+   trigger ↗ Write {file_path: "/repo/README.md"} → allowed ✓
+✗ colocate-test-files
+   trigger ↘ Write {file_path: "/repo/src/foo.ts"} → allowed ✗ (expected deny — sibling test missing)
+
+### Checks
+✓ validate-services
+   trigger ↘ Edit {file_path: "src/services/bad.ts"} → failed ✓ "lint error: ..."
+
+### Tools
+⚠ legacy_db_query — structural ✓ (registered, schema valid).
+   Handler NOT executed — inspected only.
+
+### Drift
+⚠ harness/guards/block-pushes.ts present but not registered in harness.config.ts
+```
+
+### Constraints
+
+- **Never execute a tool handler.** Tools are structural-only.
+- **Triggers never perform the real action** — `harness health trigger` runs the guard/check in isolation via the SDK testing pipeline; no file is written, no command runs.
+- **Read-only.** Health persists nothing and modifies no project files.
 
 ## Constraints (all subcommands)
 
