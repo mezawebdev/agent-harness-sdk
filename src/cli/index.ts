@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { add } from "./commands/add";
+import { health } from "./commands/health";
 import { init } from "./commands/init";
 import { list } from "./commands/list";
 import { update } from "./commands/update";
@@ -41,6 +42,18 @@ program
   .description("List all /harness subcommands with examples")
   .action(() => {
     list();
+  });
+
+program
+  .command("health")
+  .description("Validate registered guards/checks/tools (structural + trigger)")
+  .allowUnknownOption()
+  .allowExcessArguments(true)
+  // --help is forwarded to the tsx runner rather than handled by commander
+  .helpOption(false)
+  .action(() => {
+    // Pass everything after the `health` token straight to the tsx entry.
+    health(process.argv.slice(3));
   });
 
 program.parseAsync(process.argv).catch((err) => {

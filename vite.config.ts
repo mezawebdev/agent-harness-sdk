@@ -14,6 +14,7 @@ export default defineConfig({
         "hooks/post-tool-use": "src/hooks/post-tool-use.ts",
         "hooks/session-start": "src/hooks/session-start.ts",
         "mcp/start": "src/mcp/start.ts",
+        "health/run": "src/health/run.ts",
         "cli/index": "src/cli/index.ts",
       },
       formats: ["es"],
