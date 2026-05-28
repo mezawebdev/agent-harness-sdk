@@ -2,7 +2,11 @@ dist/
 node_modules/
 *.tsbuildinfo
 .claude/agent-changes-*.jsonl
+agent-changes-*
 .harness/
 .DS_Store
 docs/**/specs/
 docs/specs/
+docs/site/reference/
+docs/site/.vitepress/cache/
+docs/site/.vitepress/dist/

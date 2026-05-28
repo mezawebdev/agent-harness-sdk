@@ -12,6 +12,8 @@ export type CreateMcpServerOptions = {
 /**
  * Boots an MCP server over stdio. Registers the given tools (in order),
  * auto-instruments handlers with logEvent, and connects.
+ *
+ * @internal Wired into the MCP entry file by `harness init`; not hand-authored.
  */
 export async function createMcpServer(
   opts: CreateMcpServerOptions,

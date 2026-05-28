@@ -14,8 +14,6 @@
 
 Agent tools, pre-action guards, and post-action checks — declared in TypeScript, enforced by hooks, observable by default.
 
-Status: **Early.** Architecture stable; the public API may still evolve.
-
 ---
 
 ## What this library gives you
@@ -109,7 +107,18 @@ export default defineHarness({
 Every tool call, guard fire, and check run auto-emits a JSONL line to `.harness/log.jsonl` (gitignored):
 
 ```jsonl
-{"ts":"2026-05-10T12:34:57Z","event":"pre-tool-use.denied","tool_name":"Edit","file_path":".env","denied":[{"name":"protect-env-files","reason":"..."}]}
+{
+  "ts": "2026-05-10T12:34:57Z",
+  "event": "pre-tool-use.denied",
+  "tool_name": "Edit",
+  "file_path": ".env",
+  "denied": [
+    {
+      "name": "protect-env-files",
+      "reason": "..."
+    }
+  ]
+}
 ```
 
 Ask Claude _"what has the harness been doing this week?"_ — it'll call the bundled `harness_status` tool to aggregate the log.

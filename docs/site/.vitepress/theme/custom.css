@@ -1,0 +1,181 @@
+/**
+ * Monochrome palette matching the agent-harness-sdk icon: a deep-charcoal field
+ * with a silver/white mark. The "brand" accent is grayscale — dark on light mode,
+ * silver on dark mode — rather than a hue.
+ */
+
+/* ── Light mode: near-black accents on white ─────────────────────────────── */
+:root {
+  --vp-c-brand-1: #2b2b2b; /* links, active sidebar, inline accents */
+  --vp-c-brand-2: #000000; /* hover */
+  --vp-c-brand-3: #2b2b2b; /* solid button background */
+  --vp-c-brand-soft: rgba(60, 60, 60, 0.12); /* badge / tag fills */
+
+  /* Solid "brand" buttons: dark pill, light text. */
+  --vp-button-brand-bg: #2b2b2b;
+  --vp-button-brand-hover-bg: #000000;
+  --vp-button-brand-active-bg: #000000;
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-hover-text: #ffffff;
+  --vp-button-brand-active-text: #ffffff;
+
+  /* Home hero wordmark: brushed-silver gradient like the icon's sparkle. */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(
+    120deg,
+    #6b6b6b 30%,
+    #1f1f1f
+  );
+}
+
+/* ── Dark mode: silver accents on charcoal (the icon's own contrast) ──────── */
+.dark {
+  --vp-c-bg: #161618; /* deep field, matches the icon backdrop */
+  --vp-c-bg-alt: #1b1b1d;
+  --vp-c-bg-soft: #202023;
+
+  --vp-c-brand-1: #d8d8d8; /* silver links */
+  --vp-c-brand-2: #ffffff; /* hover */
+  --vp-c-brand-3: #e6e6e6; /* solid button background */
+  --vp-c-brand-soft: rgba(216, 216, 216, 0.14);
+
+  /* Solid "brand" buttons: silver pill, dark text (the icon inverted). */
+  --vp-button-brand-bg: #e6e6e6;
+  --vp-button-brand-hover-bg: #ffffff;
+  --vp-button-brand-active-bg: #ffffff;
+  --vp-button-brand-text: #161618;
+  --vp-button-brand-hover-text: #000000;
+  --vp-button-brand-active-text: #000000;
+
+  --vp-home-hero-name-background: -webkit-linear-gradient(
+    120deg,
+    #ffffff 30%,
+    #9a9a9a
+  );
+}
+
+/* ── Page background gradient: echoes the icon's subtle top-down lightening ─
+ * Plain linear top-to-bottom fade — no radial shape, no corner artifacts. */
+body {
+  background: linear-gradient(180deg, #fbfbfc 0%, #f3f3f5 60%, #ededf0 100%)
+    fixed;
+}
+
+.dark body {
+  background: linear-gradient(180deg, #1d1d20 0%, #18181b 45%, #131316 100%)
+    fixed;
+}
+
+/* Let component surfaces (nav, sidebar, code blocks) sit on top of the gradient
+ * with their own solid fills — that's how the icon's mark reads against its
+ * field. No changes needed beyond making sure html doesn't paint over us. */
+html {
+  background: transparent;
+}
+
+/* ── Continuous gradient field: sidebar + navbar are nearly transparent, with
+ *    just a hairline border and a soft blur halo separating them from the main
+ *    content. The page gradient runs unbroken across the whole layout. */
+:root {
+  --vp-sidebar-bg-color: transparent;
+  --vp-nav-bg-color: transparent;
+  --vp-sidebar-width: 232px;
+}
+
+.VPSidebar,
+.VPNavBar:not(.home),
+.VPNavBar {
+  background: transparent;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.VPSidebar {
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Navbar baseline — quiet uniform hairline. The parent `.VPNavBar` draws the
+ * full-width line; the inner `.title` segment must NOT also draw one, or two
+ * semi-transparent borders stack at the same Y on the left and read lighter
+ * than the right (where only the parent's line exists). */
+.VPNavBar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+.VPNavBar.has-sidebar .title,
+.VPNavBar.has-sidebar:not(.home).top .title {
+  border-bottom: none !important;
+}
+
+.dark .VPSidebar {
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dark .VPNavBar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* The navbar has an inner divider line that draws against the old solid bg —
+ * hide it so the surface reads cleanly. */
+.VPNavBar .divider,
+.VPNavBar .divider-line {
+  background-color: transparent !important;
+}
+
+/* VitePress draws a `.curtain` only on the right content side of the navbar
+ * (a fade from var(--vp-c-bg) → transparent). That darkens the area just
+ * below the hairline on the right but not the left, making the left hairline
+ * read as lighter. Kill it so both sides match. */
+.VPNavBar .curtain {
+  display: none !important;
+}
+
+/* Hide the "On this page" collapsible bar that VitePress shows at the top of
+ * content on medium-width viewports (when the right-side outline aside isn't
+ * visible). The aside still appears on wide viewports. */
+.VPLocalNavOutlineDropdown,
+.VPLocalNav {
+  display: none !important;
+}
+
+/* Desktop top-nav: hide every nav item EXCEPT the external npm link.
+ * Sidebar handles in-site navigation on desktop; npm stays because it's an
+ * external link with no sidebar equivalent. Mobile drawer (.VPNavScreen) keeps
+ * the full nav config unaffected. */
+.VPNavBarMenu > a:not([href*="npmjs.com"]),
+.VPNavBarMenu > .VPNavBarMenuGroup {
+  display: none !important;
+}
+
+/* Hide the navbar search button for now. */
+.VPNavBarSearch {
+  display: none !important;
+}
+
+/* Show the appearance toggle and GitHub social link at all viewport widths.
+ * VitePress's default theme hides these below ~768px; force-show so they're
+ * available on smaller laptop / tablet screens too. */
+.VPNavBar .VPNavBarAppearance,
+.VPNavBar .VPNavBarSocialLinks {
+  display: flex !important;
+}
+
+/* Hide the desktop overflow menu (the three-dots `.VPNavBarExtra`) — with the
+ * nav menu hidden we don't need an overflow target. */
+.VPNavBarExtra {
+  display: none !important;
+}
+
+/* Remove VitePress's default vertical dividers between top-right items
+ * (border-left on appearance / social-links / before pseudo on extra). */
+.VPNavBar .VPNavBarAppearance,
+.VPNavBar .VPNavBarSocialLinks {
+  border-left: 0 !important;
+}
+.VPNavBar .VPNavBarAppearance::before,
+.VPNavBar .VPNavBarSocialLinks::before {
+  display: none !important;
+}

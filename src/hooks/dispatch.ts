@@ -7,6 +7,8 @@ import { block, pass, readHookInput } from "./utils";
  * Reads PreToolUse hook input from stdin, runs all matching guards in parallel,
  * blocks (exit 2) if any deny, otherwise passes (exit 0). Process exits inside.
  * Auto-emits one event per fire to .harness/log.jsonl.
+ *
+ * @internal Wired into hook entry files by `harness init`; not hand-authored.
  */
 export async function createPreToolUseDispatcher(
   guards: Guard[],
@@ -61,6 +63,8 @@ export async function createPreToolUseDispatcher(
  * Reads PostToolUse hook input from stdin, runs all matching checks in parallel,
  * blocks (exit 2) if any fail, otherwise passes (exit 0). Process exits inside.
  * Auto-emits one event per fire to .harness/log.jsonl.
+ *
+ * @internal Wired into hook entry files by `harness init`; not hand-authored.
  */
 export async function createPostToolUseDispatcher(
   checks: Check[],
