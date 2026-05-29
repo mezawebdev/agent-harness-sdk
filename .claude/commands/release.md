@@ -13,7 +13,7 @@ The user invoked `/release $ARGUMENTS`.
 2. **Inspect what's changed since the last release.** Find the last release tag (`git describe --tags --abbrev=0`). Run `git log --oneline <tag>..HEAD` and `git status` to see commits + any uncommitted files that belong in this release. Read the current `CHANGELOG.md` to see what's already drafted under `## [Unreleased]`.
 
 3. **Draft the CHANGELOG entry.** In `CHANGELOG.md`:
-   - Insert a new `## [<version>] — <YYYY-MM-DD>` section directly below the existing `## [Unreleased]` heading.
+   - Insert a new `## [<version>] — <YYYY-MM-DD>` section directly below the existing `## [Unreleased]` heading. **This heading format is a contract:** `publish.yml` scrapes the block under `## [<version>]` to populate the GitHub Release notes. If the format drifts, the release body silently falls back to a generic "see CHANGELOG.md" message — keep the `## [<version>]` shape intact.
    - Move any content currently under `[Unreleased]` into the new version section. Leave `[Unreleased]` as an empty heading.
    - If `[Unreleased]` was empty, draft the entries yourself based on commits since the last tag and any uncommitted changes. Use Keep a Changelog headings: `### Added`, `### Changed`, `### Fixed`, `### Removed`. One bullet per logical change; lead with the user-visible behavior, not the internal mechanism.
 
@@ -37,9 +37,9 @@ The user invoked `/release $ARGUMENTS`.
    git tag -a v<version> -m "v<version>"
    git push origin v<version>
    ```
-   The tag push triggers `.github/workflows/publish.yml`, which runs `npm publish` via OIDC trusted publishing.
+   The tag push triggers `.github/workflows/publish.yml`, which runs `npm publish` via OIDC trusted publishing and then cuts a matching GitHub Release with notes scraped from this version's CHANGELOG section.
 
-10. **Surface the result.** Tell the user the commit SHA, the tag, and `https://github.com/mezawebdev/agent-harness-sdk/actions` so they can watch the publish run.
+10. **Surface the result.** Tell the user the commit SHA, the tag, `https://github.com/mezawebdev/agent-harness-sdk/actions` so they can watch the publish run, and `https://github.com/mezawebdev/agent-harness-sdk/releases` where the GitHub Release will appear once the workflow finishes.
 
 ## Constraints
 
