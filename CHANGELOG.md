@@ -8,6 +8,22 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.2.4] — 2026-05-29
+
+### Fixed
+
+- **`tsx` now installs automatically with the package** — moved from a peer
+  dependency to a direct dependency. Package managers that don't auto-install
+  peers (pnpm, Yarn, older npm) previously left `tsx` missing, causing the
+  harness MCP server and hooks to fail to start with `-32000`. They now resolve
+  their TypeScript runtime on any package manager.
+
+### Changed
+
+- **Docs** — quick-start installs with `npm install -D`, README links to the
+  docs site and reorders primitives as guards/checks/tools, and the
+  introduction's post-`init` wording is simplified.
+
 ## [0.2.3] — 2026-05-28
 
 ### Added

@@ -16,13 +16,12 @@ See [How it works](/concepts/how-it-works) for the agentic-loop walkthrough.
 ### Install
 
 ```bash
-npm install agent-harness-sdk
+npm install -D agent-harness-sdk
 npx harness init
 ```
 
-Restart Claude Code and approve the MCP server and hooks when prompted. `init`
-creates a `harness/` directory, registers hooks under `.claude/`, and adds an
-`.mcp.json`.
+Restart Claude Code. You will now have a `harness/` directory, hooks registered
+under `.claude/`, and the harness server merged into `.mcp.json`.
 
 ### Scaffold a primitive
 

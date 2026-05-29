@@ -30,7 +30,7 @@ New to harness engineering? See [Anthropic](https://www.anthropic.com/engineerin
 ## Quick start
 
 ```bash
-npm install agent-harness-sdk
+npm install -D agent-harness-sdk
 npx harness init
 ```
 
