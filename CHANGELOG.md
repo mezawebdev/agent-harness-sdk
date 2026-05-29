@@ -8,6 +8,16 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.2.3] — 2026-05-28
+
+### Added
+
+- **GitHub Releases on publish** — the publish workflow now cuts a matching
+  GitHub Release after `npm publish`, with notes scraped from this version's
+  CHANGELOG section.
+- **Click-to-zoom lightbox for Mermaid diagrams** on the documentation site —
+  diagrams open in a full-screen overlay on click.
+
 ## [0.2.2] — 2026-05-28
 
 ### Added
