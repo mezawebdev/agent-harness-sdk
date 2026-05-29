@@ -8,6 +8,17 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.2.5] — 2026-05-29
+
+### Fixed
+
+- **`dotenv` is now externalized in the build instead of bundled.** When a
+  project had a `.env` file, the bundled copy of dotenv hit
+  `TypeError: path.resolve is not a function` (Vite's browser shim had replaced
+  its internal `require("path")` with an empty object). This crashed the
+  pre/post-tool-use hooks *before* guards and checks ran — silently letting
+  protected operations through. Hooks now load `.env` files without crashing.
+
 ## [0.2.4] — 2026-05-29
 
 ### Fixed

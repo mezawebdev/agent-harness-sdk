@@ -28,6 +28,7 @@ export default defineConfig({
         "@clack/prompts",
         "picocolors",
         "picomatch",
+        "dotenv",
       ],
       output: {
         entryFileNames: "[name].js",
