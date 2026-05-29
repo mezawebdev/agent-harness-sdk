@@ -34,7 +34,7 @@ npm install agent-harness-sdk
 npx harness init
 ```
 
-Restart Claude Code from the project directory and approve the new MCP server and hooks when prompted. You now have:
+Restart Claude Code from the project directory. You now have:
 
 ```
 my-project/
