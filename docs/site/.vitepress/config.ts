@@ -78,5 +78,28 @@ export default withMermaid(
     // TypeDoc-generated reference is built into ./reference before this runs.
     // Ignore dead links there if a partial generation occurs locally.
     ignoreDeadLinks: [/^\/reference\//],
+
+    // Mermaid render defaults — larger base font and roomier spacing so the
+    // agentic-loop diagram stays legible. Layout/legibility CSS is in custom.css.
+    mermaid: {
+      theme: "dark",
+      themeVariables: {
+        fontSize: "19px",
+        fontFamily:
+          "var(--vp-font-family-base), -apple-system, sans-serif",
+        lineColor: "#7a7a85",
+        edgeLabelBackground: "#1b1b1f",
+      },
+      flowchart: {
+        // The diagram fits the prose column inline (compact) and is
+        // click-to-zoom into a full-size modal — see custom.css + index.ts.
+        useMaxWidth: true,
+        htmlLabels: true,
+        padding: 12,
+        nodeSpacing: 28,
+        rankSpacing: 40,
+        curve: "basis",
+      },
+    },
   }),
 );
