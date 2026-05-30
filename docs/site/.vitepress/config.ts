@@ -1,10 +1,11 @@
 import { defineConfig } from "vitepress";
 import { withMermaid } from "vitepress-plugin-mermaid";
 
-// Static docs site for agent-harness-sdk, served under /agent-harness-sdk/.
+// Static docs site for agent-harness-sdk, served at the root of the
+// agent-harness-sdk.alexmeza.io custom domain.
 export default withMermaid(
   defineConfig({
-    base: "/agent-harness-sdk/",
+    base: "/",
     lang: "en-US",
     title: "Agent Harness SDK",
     description:
@@ -18,7 +19,7 @@ export default withMermaid(
         {
           rel: "icon",
           type: "image/svg+xml",
-          href: "/agent-harness-sdk/agent-harness-sdk-icon.svg",
+          href: "/agent-harness-sdk-icon.svg",
         },
       ],
     ],
