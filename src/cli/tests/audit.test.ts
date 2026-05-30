@@ -45,6 +45,17 @@ describe("readHarnessHookCommand", () => {
     );
   });
 
+  it("does not intercept an unrelated user hook with the same file name", () => {
+    const settings = {
+      hooks: {
+        PreToolUse: [
+          { hooks: [{ command: "tsx ./hooks/pre-tool-use.ts" }] },
+        ],
+      },
+    };
+    expect(readHarnessHookCommand(settings)).toBeNull();
+  });
+
   it("returns null when no harness hook is wired", () => {
     expect(readHarnessHookCommand({ hooks: { PreToolUse: [] } })).toBeNull();
     expect(readHarnessHookCommand({})).toBeNull();

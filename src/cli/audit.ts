@@ -8,8 +8,16 @@ import {
 import { join } from "node:path";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { HARNESS_HOOK_MARKER } from "./merge-config";
 import { deriveLevel, probeWriteBlocked } from "./security-level";
+
+/** Recognizes the harness PreToolUse hook: the `agent-harness-sdk` package
+ *  signature **and** its `pre-tool-use` entry file. Requiring the package name
+ *  avoids intercepting an unrelated user hook that merely happens to be named
+ *  `pre-tool-use.{js,ts}`. (Consequence: a bare source/dev wiring with no
+ *  package path — e.g. this SDK's own dogfood `src/hooks/pre-tool-use.ts` — is
+ *  not auto-detected; real `harness init` projects always carry the package
+ *  path, and the SDK repo verifies its guard via unit tests.) */
+const HARNESS_HOOK_REGEX = /agent-harness-sdk\b.*\bpre-tool-use\.[jt]s\b/;
 
 // ── pure helpers (unit-tested) ───────────────────────────────────────────────
 
@@ -30,7 +38,7 @@ type Settings = {
 export function readHarnessHookCommand(settings: Settings): string | null {
   for (const entry of settings.hooks?.PreToolUse ?? []) {
     for (const h of entry.hooks ?? []) {
-      if (typeof h.command === "string" && h.command.includes(HARNESS_HOOK_MARKER)) {
+      if (typeof h.command === "string" && HARNESS_HOOK_REGEX.test(h.command)) {
         return h.command;
       }
     }
@@ -89,6 +97,7 @@ type Finding = {
   expected: Observed;
   observed: Observed;
   ok: boolean;
+  note?: string;
 };
 
 const readFileOrNull = (f: string): string | null =>
@@ -144,11 +153,16 @@ export function runAudit(cwd: string): number {
   const hookCmd = readHarnessHookCommand(settings);
   if (!hookCmd) {
     findings.push({
-      label: "guard wired",
+      label: "guard hook found in settings.json",
       kind: "guard",
       expected: "denied",
       observed: "error",
       ok: false,
+      note:
+        "no agent-harness-sdk PreToolUse hook matched in .claude/settings.json, so the guard couldn't be probed. " +
+        "If the hook is wired with a non-standard/source path (no node_modules/agent-harness-sdk in the command — " +
+        "e.g. this SDK's own dogfood `src/hooks/…` wiring), the audit can't locate it and the guard may still be " +
+        "enforcing — verify via its unit tests. A normal `harness init` project carries the package path and is detected.",
     });
   } else {
     record(
@@ -181,11 +195,12 @@ export function runAudit(cwd: string): number {
 function renderReport(level: number, findings: Finding[], intact: boolean): void {
   const rows = findings.map((f) => {
     const mark = f.ok ? pc.green("✔") : pc.yellow("✗");
-    const note =
+    const inlineGap =
       f.ok && f.kind === "fs-wall" && f.observed === "wrote" && level <= 1
         ? pc.dim(" (expected at this level — raise to 2 for an FS wall)")
         : "";
-    return `${mark} ${f.label}: ${pc.bold(f.observed)} ${pc.dim(`(expected ${f.expected})`)}${note}`;
+    const extra = f.note ? `\n   ${pc.dim(f.note)}` : "";
+    return `${mark} ${f.label}: ${pc.bold(f.observed)} ${pc.dim(`(expected ${f.expected})`)}${inlineGap}${extra}`;
   });
   p.note(rows.join("\n"), `Level ${level} — observed vs expected`);
 
