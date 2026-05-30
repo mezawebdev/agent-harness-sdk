@@ -1,0 +1,137 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join, relative } from "node:path";
+import { parse } from "dotenv";
+import { HARNESS_HOOK_MARKER } from "../cli/merge-config";
+import { projectDir } from "../hooks/utils";
+import { Tools } from "../tool-names";
+import { type Guard, type HookInput, guardAllow, guardDeny } from "../types";
+
+/**
+ * Built-in, non-removable guard that protects the harness's own enforcement
+ * surface from being edited by the agent. Injected by the pre-tool-use
+ * dispatcher (not registered in the consumer's `harness.config.ts`), so it
+ * cannot be unregistered by editing that file.
+ *
+ * Protects, unless `HARNESS_UNLOCK` is set (see {@link isUnlocked}):
+ *   - `harness/**`            — config, guards, checks, tools, rules
+ *   - `.env` / `.env.*`       — closes the self-unlock path (the flag can't be
+ *                               set in a file the agent can write while locked)
+ *   - `.claude/settings.json` — but only when the edit would tamper with the
+ *                               harness hook wiring; other sections pass through
+ *
+ * `.env` stays protected when *unlocked* too, but by the separate, removable
+ * `protect-env-files` guard — not this one. See the design doc.
+ */
+
+/** Whether the harness is unlocked, read **only** from the project `.env`
+ *  (ambient `process.env` is intentionally ignored — unlock is a per-project,
+ *  in-repo decision, not a global shell toggle). Truthy unless absent, empty,
+ *  "0", or "false". Absent `.env` or unset flag = locked, the secure default. */
+function isUnlocked(): boolean {
+  const envPath = join(projectDir(), ".env");
+  if (!existsSync(envPath)) return false;
+  let value: string | undefined;
+  try {
+    value = parse(readFileSync(envPath)).HARNESS_UNLOCK;
+  } catch {
+    return false;
+  }
+  if (value === undefined) return false;
+  const t = value.trim().toLowerCase();
+  return t !== "" && t !== "0" && t !== "false";
+}
+
+/** Project-relative, forward-slashed path for the edited file. */
+function relativePathOf(input: HookInput): string {
+  const file = input.tool_input?.file_path ?? "";
+  return relative(projectDir(), file).split("\\").join("/");
+}
+
+function isEnvFile(relativePath: string): boolean {
+  const base = relativePath.split("/").pop() ?? "";
+  return /^\.env($|\.)/.test(base);
+}
+
+function isHarnessFile(relativePath: string): boolean {
+  return relativePath === "harness" || relativePath.startsWith("harness/");
+}
+
+function isSettingsFile(relativePath: string): boolean {
+  return relativePath === ".claude/settings.json";
+}
+
+/** Count non-overlapping occurrences of `needle` in `haystack`. */
+function count(haystack: string, needle: string): number {
+  return haystack.split(needle).length - 1;
+}
+
+/** The content that would result from applying this Write/Edit/MultiEdit to
+ *  `current`, or the new content for a Write. Returns `current` unchanged when
+ *  the edit's `old_string` isn't present (a no-op or a soon-to-fail edit). */
+function resultingContent(input: HookInput, current: string): string {
+  const ti = input.tool_input as {
+    content?: string;
+    old_string?: string;
+    new_string?: string;
+    edits?: Array<{ old_string?: string; new_string?: string }>;
+  };
+  // Write replaces the whole file; Edit is just a single-edit MultiEdit.
+  if (input.tool_name === Tools.Write) return ti.content ?? current;
+  const edits = ti.edits ?? [{ old_string: ti.old_string, new_string: ti.new_string }];
+  return edits.reduce(
+    (text, e) => text.replace(e.old_string ?? "", e.new_string ?? ""),
+    current,
+  );
+}
+
+/** Whether an edit to settings.json would remove or alter a harness hook
+ *  entry — detected by a drop in the hook-marker count after applying it. If
+ *  the harness isn't wired in this file, there's nothing to protect. */
+function tampersWithHookWiring(input: HookInput): boolean {
+  const path = join(projectDir(), ".claude/settings.json");
+  if (!existsSync(path)) return false;
+  let current: string;
+  try {
+    current = readFileSync(path, "utf-8");
+  } catch {
+    return false;
+  }
+  const before = count(current, HARNESS_HOOK_MARKER);
+  if (before === 0) return false;
+  return count(resultingContent(input, current), HARNESS_HOOK_MARKER) < before;
+}
+
+const UNLOCK_HINT =
+  "ask the user to set HARNESS_UNLOCK=1 in the project .env to make harness " +
+  "changes, or to make this change manually.";
+
+export const protectHarness: Guard = {
+  name: "protect-harness",
+  tools: [Tools.Edit, Tools.Write, Tools.MultiEdit],
+  files: ["**/harness/**", "**/.env", "**/.env.*", "**/.claude/settings.json"],
+  async run(input) {
+    if (isUnlocked()) return guardAllow();
+
+    const relativePath = relativePathOf(input);
+
+    if (isHarnessFile(relativePath)) {
+      return guardDeny(
+        `protect-harness: ${relativePath} is part of the harness enforcement surface and is locked. ${UNLOCK_HINT}`,
+      );
+    }
+
+    if (isEnvFile(relativePath)) {
+      return guardDeny(
+        `protect-harness: ${relativePath} is locked while the harness is — editing it could set HARNESS_UNLOCK and weaken enforcement. ${UNLOCK_HINT}`,
+      );
+    }
+
+    if (isSettingsFile(relativePath) && tampersWithHookWiring(input)) {
+      return guardDeny(
+        `protect-harness: this edit to ${relativePath} would alter the harness hook wiring, which disables enforcement. ${UNLOCK_HINT}`,
+      );
+    }
+
+    return guardAllow();
+  },
+};

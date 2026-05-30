@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { HarnessConfig } from "../define";
 import { loadProjectEnv } from "../env";
+import { protectHarness } from "../guards/protect-harness";
 import { createPreToolUseDispatcher } from "./dispatch";
 import { projectDir } from "./utils";
 
@@ -22,7 +23,12 @@ async function main() {
     default: HarnessConfig;
   };
 
-  await createPreToolUseDispatcher(mod.default.guards ?? []);
+  // protectHarness is prepended here, never read from config, so it can't be
+  // unregistered by editing harness.config.ts. It guards the harness itself.
+  await createPreToolUseDispatcher([
+    protectHarness,
+    ...(mod.default.guards ?? []),
+  ]);
 }
 
 main().catch((err) => {

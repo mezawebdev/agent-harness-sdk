@@ -1,12 +1,12 @@
 {
-  "sdkVersion": "0.2.0",
+  "sdkVersion": "0.2.5",
   "files": {
     ".claude/rules/harness.md": {
-      "sourceVersion": "0.2.0",
-      "checksum": "sha256:07c688fb5e49445c"
+      "sourceVersion": "0.2.5",
+      "checksum": "sha256:da1a7a9463dbe6e0"
     },
     ".claude/commands/harness.md": {
-      "sourceVersion": "0.2.0",
+      "sourceVersion": "0.2.5",
       "checksum": "sha256:fe753184a1036a4c"
     }
   }

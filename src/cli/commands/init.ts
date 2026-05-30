@@ -118,6 +118,11 @@ export async function init(): Promise<void> {
     [
       pc.green("Harness initialized."),
       "",
+      pc.dim(
+        `The harness now locks its own files. To edit ${pc.cyan("harness/")} or the hook`,
+      ),
+      pc.dim(`wiring, set ${pc.cyan("HARNESS_UNLOCK=1")} in the project ${pc.cyan(".env")}.`),
+      "",
       pc.dim("Next steps:"),
       `  1. Restart Claude Code from this directory`,
       `  2. Approve the new MCP server and hook commands when prompted`,

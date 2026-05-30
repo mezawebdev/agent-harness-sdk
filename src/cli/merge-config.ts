@@ -5,8 +5,10 @@
  * entries instead of duplicating them.
  */
 
-/** Heuristic for detecting our own hook commands so re-runs don't duplicate. */
-const HARNESS_HOOK_MARKER = "agent-harness-sdk/dist/hooks/";
+/** Heuristic for detecting our own hook commands so re-runs don't duplicate.
+ *  Also used by the built-in `protect-harness` guard to tell whether a
+ *  settings.json edit would tamper with the harness hook wiring. */
+export const HARNESS_HOOK_MARKER = "agent-harness-sdk/dist/hooks/";
 
 type ClaudeHookEntry = {
   matcher?: string;

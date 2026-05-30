@@ -33,6 +33,20 @@ Do not edit the harness to silence failures:
 
 If a tool keeps failing, report it — do not bypass.
 
+### Enforced lock
+
+The built-in `protect-harness` guard **enforces** part of this boundary: edits
+to `harness/**`, `.env`/`.env.*`, and the harness hook wiring in
+`.claude/settings.json` are blocked by default. This guard is injected by the
+hook dispatcher itself — it is not in `harness.config.ts` and cannot be
+unregistered there.
+
+To work on the harness intentionally, the **user** sets `HARNESS_UNLOCK=1` (in
+their shell or `.env`); the agent cannot set it itself while locked. When you
+hit this block, don't try to route around it (e.g. via a shell command or
+script) — surface it and ask the user to set `HARNESS_UNLOCK=1` or make the
+change manually.
+
 ## Authoring tools
 
 A **tool** is a deterministic MCP operation. Same input → same output, every time. Use a tool whenever a step would be error-prone to do via prose.
