@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - "v*.*.*"
+      # Docs-only rebuild trigger — does NOT publish to npm (publish.yml
+      # only fires on v*.*.* tags), so this is safe for docs-only deploys.
+      - "gh-pages-*"
+  workflow_dispatch:
 
 permissions:
   contents: read
