@@ -41,11 +41,10 @@ to `harness/**`, `.env`/`.env.*`, and the harness hook wiring in
 hook dispatcher itself — it is not in `harness.config.ts` and cannot be
 unregistered there.
 
-To work on the harness intentionally, the **user** sets `HARNESS_UNLOCK=1` (in
-their shell or `.env`); the agent cannot set it itself while locked. When you
-hit this block, don't try to route around it (e.g. via a shell command or
-script) — surface it and ask the user to set `HARNESS_UNLOCK=1` or make the
-change manually.
+Unlocking the harness is a **human** decision that the agent cannot perform
+itself. When you hit this block, don't try to route around it (e.g. via a shell
+command or script) — surface it to the user and ask them to unlock the harness
+or make the change manually.
 
 ## Authoring tools
 
