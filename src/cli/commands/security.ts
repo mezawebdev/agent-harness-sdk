@@ -9,6 +9,7 @@ import {
   hasHarnessSandbox,
   removeHarnessSandbox,
 } from "../sandbox-protection";
+import { isInsideClaudeCode, runAudit } from "../audit";
 import { UNLOCK, deriveLevel, probeWriteBlocked } from "../security-level";
 
 const LEVELS = [0, 1, 2, 3] as const;
@@ -50,6 +51,19 @@ function bubblewrapMissing(): boolean {
 
 export async function security(levelArg?: string): Promise<void> {
   const cwd = process.cwd();
+
+  if (levelArg === "audit") {
+    if (!isInsideClaudeCode()) {
+      p.intro(pc.cyan("harness security audit"));
+      p.cancel(
+        "Run this inside Claude Code: /harness security audit (or ask Claude to run it). " +
+          "From a plain terminal it can't exercise the live sandbox.",
+      );
+      process.exit(1);
+    }
+    process.exit(runAudit(cwd));
+  }
+
   p.intro(pc.cyan("harness security"));
 
   if (levelArg === undefined) {

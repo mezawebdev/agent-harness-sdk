@@ -105,9 +105,15 @@ const UNLOCK_HINT =
   "ask the user to set HARNESS_UNLOCK=1 in the project .env to make harness " +
   "changes, or to make this change manually.";
 
-/** Matches an attempt to run the `harness security` CLI (any package-runner
- *  prefix), e.g. `npx harness security 0`. */
-const HARNESS_SECURITY_CMD = /\bharness\s+security\b/;
+/** Matches an attempt to *change* the security level — the `harness` bin or the
+ *  CLI entry (`cli/index.{js,ts}`, the direct-bin bypass) invoked with
+ *  `security <0-3>`. Read-only forms (`security audit`, the no-arg report) and
+ *  unrelated commands that merely mention a level string are not matched.
+ *
+ *  A cooperative-agent signpost, not a wall: at level 1, raw Bash writes to
+ *  `.env` (`echo`, `node -e`, a script) can still set the flag — only level 2's
+ *  kernel `denyWrite` closes those. See the design doc. */
+const HARNESS_SECURITY_CMD = /\b(?:harness|cli\/index\.[jt]s)\s+security\s+[0-3]\b/;
 
 export const protectHarness: Guard = {
   name: "protect-harness",

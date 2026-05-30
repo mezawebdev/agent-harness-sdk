@@ -48,9 +48,9 @@ program
 program
   .command("security")
   .description(
-    "Set the harness security level (0 off, 1 guard, 2 sandbox, 3 external); no arg reports the current level",
+    "Set the harness security level (0 off, 1 guard, 2 sandbox, 3 external); no arg reports the current level; `audit` red-teams it (inside Claude Code)",
   )
-  .argument("[level]", "0 | 1 | 2 | 3")
+  .argument("[level]", "0 | 1 | 2 | 3 | audit")
   .action(async (level?: string) => {
     await security(level);
   });

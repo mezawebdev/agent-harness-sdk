@@ -118,11 +118,39 @@ describe("protectHarness — Bash `harness security` is human-only", () => {
     expect(result.reason).toContain("human");
   });
 
-  it("denies other invocation forms", async () => {
+  it("denies other level-change forms", async () => {
     expect((await run(bashTool("harness security 1"))).denied).toBe(true);
     expect(
       (await run(bashTool("npx --no-install harness security 2"))).denied,
     ).toBe(true);
+  });
+
+  it("denies running the CLI entry directly (bypassing the `harness` bin)", async () => {
+    expect(
+      (
+        await run(
+          bashTool(
+            "node node_modules/agent-harness-sdk/dist/cli/index.js security 0",
+          ),
+        )
+      ).denied,
+    ).toBe(true);
+  });
+
+  it("does not false-positive on grepping for a level string", async () => {
+    expect(
+      (await run(bashTool('grep -r "security 0" harness/'))).denied,
+    ).toBe(false);
+  });
+
+  it("allows `harness security audit` (not a level change)", async () => {
+    expect((await run(bashTool("npx harness security audit"))).denied).toBe(
+      false,
+    );
+  });
+
+  it("allows the no-arg `harness security` report", async () => {
+    expect((await run(bashTool("npx harness security"))).denied).toBe(false);
   });
 
   it("allows unrelated Bash commands", async () => {
