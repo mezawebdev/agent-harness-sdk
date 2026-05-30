@@ -30,7 +30,7 @@ export default withMermaid(
       // top-nav strip (.VPNavBarMenu) is CSS-hidden so navigation lives in the
       // sidebar — see custom.css.
       nav: [
-        { text: "Getting Started", link: "/introduction" },
+        { text: "Getting Started", link: "/getting-started" },
         { text: "How it works", link: "/concepts/how-it-works" },
         { text: "Guards", link: "/guides/guards" },
         { text: "Checks", link: "/guides/checks" },
@@ -45,7 +45,7 @@ export default withMermaid(
       ],
 
       sidebar: [
-        { text: "Getting Started", link: "/introduction" },
+        { text: "Getting Started", link: "/getting-started" },
         { text: "How it works", link: "/concepts/how-it-works" },
         { text: "Guards", link: "/guides/guards" },
         { text: "Checks", link: "/guides/checks" },
