@@ -8,7 +8,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import { editTool, runGuard, tool, writeTool } from "../../testing";
+import { bashTool, editTool, runGuard, tool, writeTool } from "../../testing";
 import { protectHarness } from "../protect-harness";
 
 // A settings.json wired with the harness hook command (contains the marker
@@ -105,10 +105,33 @@ describe("protectHarness — locked (default)", () => {
     expect(result.denied).toBe(false);
   });
 
-  it("does not fire on ordinary app code", async () => {
+  it("does not block ordinary app code", async () => {
     const result = await run(writeTool(at("src/index.ts")));
-    expect(result.active).toBe(false);
     expect(result.denied).toBe(false);
+  });
+});
+
+describe("protectHarness — Bash `harness security` is human-only", () => {
+  it("denies the agent invoking `npx harness security`", async () => {
+    const result = await run(bashTool("npx harness security 0"));
+    expect(result.denied).toBe(true);
+    expect(result.reason).toContain("human");
+  });
+
+  it("denies other invocation forms", async () => {
+    expect((await run(bashTool("harness security 1"))).denied).toBe(true);
+    expect(
+      (await run(bashTool("npx --no-install harness security 2"))).denied,
+    ).toBe(true);
+  });
+
+  it("allows unrelated Bash commands", async () => {
+    expect((await run(bashTool("npm test"))).denied).toBe(false);
+  });
+
+  it("allows `harness security` when the harness is unlocked", async () => {
+    setUnlock("1");
+    expect((await run(bashTool("npx harness security 0"))).denied).toBe(false);
   });
 });
 

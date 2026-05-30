@@ -105,12 +105,29 @@ const UNLOCK_HINT =
   "ask the user to set HARNESS_UNLOCK=1 in the project .env to make harness " +
   "changes, or to make this change manually.";
 
+/** Matches an attempt to run the `harness security` CLI (any package-runner
+ *  prefix), e.g. `npx harness security 0`. */
+const HARNESS_SECURITY_CMD = /\bharness\s+security\b/;
+
 export const protectHarness: Guard = {
   name: "protect-harness",
-  tools: [Tools.Edit, Tools.Write, Tools.MultiEdit],
-  files: ["**/harness/**", "**/.env", "**/.env.*", "**/.claude/settings.json"],
+  tools: [Tools.Edit, Tools.Write, Tools.MultiEdit, Tools.Bash],
+  // No `files` condition: Bash calls carry no file_path, so a files filter would
+  // exclude them. Scope is enforced per-tool in run() instead.
   async run(input) {
     if (isUnlocked()) return guardAllow();
+
+    // Changing the security level is a human-only action (see the design doc).
+    if (input.tool_name === Tools.Bash) {
+      const command = (input.tool_input as { command?: string })?.command ?? "";
+      if (HARNESS_SECURITY_CMD.test(command)) {
+        return guardDeny(
+          "protect-harness: changing the harness security level is a human action — " +
+            "ask the user to run `harness security` in their terminal.",
+        );
+      }
+      return guardAllow();
+    }
 
     const relativePath = relativePathOf(input);
 

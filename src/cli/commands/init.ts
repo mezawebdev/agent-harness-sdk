@@ -12,6 +12,7 @@ import {
   mergeClaudeSettings,
   mergeMcpServers,
 } from "../merge-config";
+import { addHarnessSandbox } from "../sandbox-protection";
 import { syncContent } from "../sync-content";
 import {
   harnessConfigTemplate,
@@ -47,6 +48,35 @@ export async function init(): Promise<void> {
     }
   }
 
+  // Self-protection posture. 0 (off) is intentionally NOT offered here — it's a
+  // deliberate post-install opt-out via `npx harness security 0`. init never
+  // writes `.env`.
+  let level = 1;
+  if (process.stdout.isTTY) {
+    const choice = await p.select({
+      message: "Harness security level?",
+      initialValue: 1,
+      options: [
+        { value: 1, label: "1 — Guard (recommended)", hint: "in-process lock" },
+        {
+          value: 2,
+          label: "2 — Sandbox",
+          hint: "OS-enforced read-only (macOS/Linux)",
+        },
+        {
+          value: 3,
+          label: "3 — External",
+          hint: "you harden the OS; harness verifies",
+        },
+      ],
+    });
+    if (p.isCancel(choice)) {
+      p.cancel("Aborted.");
+      process.exit(0);
+    }
+    level = choice as number;
+  }
+
   const s = p.spinner();
 
   s.start("Creating directories");
@@ -66,8 +96,16 @@ export async function init(): Promise<void> {
   const settingsPath = join(cwd, ".claude/settings.json");
   const existingSettings = readJsonOrNull(settingsPath) as Parameters<typeof mergeClaudeSettings>[0];
   const mergedSettings = mergeClaudeSettings(existingSettings, harnessHookEntries());
-  writeFileSync(settingsPath, `${JSON.stringify(mergedSettings, null, 2)}\n`);
-  s.stop(".claude/settings.json merged");
+  const finalSettings =
+    level === 2
+      ? (addHarnessSandbox(mergedSettings as Record<string, unknown>) as typeof mergedSettings)
+      : mergedSettings;
+  writeFileSync(settingsPath, `${JSON.stringify(finalSettings, null, 2)}\n`);
+  s.stop(
+    level === 2
+      ? ".claude/settings.json merged (+ sandbox protection)"
+      : ".claude/settings.json merged",
+  );
 
   s.start("Merging .mcp.json (preserving other MCP servers)");
   const mcpPath = join(cwd, ".mcp.json");
@@ -101,6 +139,19 @@ export async function init(): Promise<void> {
   }
   s.stop(".gitignore updated");
 
+  if (level === 3) {
+    p.note(
+      [
+        "Level 3 is enforced by the OS, not the harness — apply it as root (sudo),",
+        `then verify with ${pc.cyan("npx harness security 3")}:`,
+        process.platform === "darwin"
+          ? `  ${pc.cyan("sudo chown -R root harness .env && sudo chmod -R a-w harness .env")}`
+          : `  ${pc.cyan("sudo chattr -R +i harness .env")}`,
+      ].join("\n"),
+      "Level 3 — external",
+    );
+  }
+
   p.note(
     [
       `${pc.dim("•")} ${pc.bold("harness/")}                  domain code (tools, guards, checks)`,
@@ -116,12 +167,11 @@ export async function init(): Promise<void> {
 
   p.outro(
     [
-      pc.green("Harness initialized."),
+      pc.green(`Harness initialized at security level ${level}.`),
       "",
       pc.dim(
-        `The harness now locks its own files. To edit ${pc.cyan("harness/")} or the hook`,
+        `Change it anytime with ${pc.cyan("npx harness security <0-3>")} ${pc.dim("(0 = off)")}.`,
       ),
-      pc.dim(`wiring, set ${pc.cyan("HARNESS_UNLOCK=1")} in the project ${pc.cyan(".env")}.`),
       "",
       pc.dim("Next steps:"),
       `  1. Restart Claude Code from this directory`,

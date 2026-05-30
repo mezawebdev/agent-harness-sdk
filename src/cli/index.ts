@@ -3,6 +3,7 @@ import { add } from "./commands/add";
 import { health } from "./commands/health";
 import { init } from "./commands/init";
 import { list } from "./commands/list";
+import { security } from "./commands/security";
 import { update } from "./commands/update";
 
 const program = new Command();
@@ -42,6 +43,16 @@ program
   .description("List all /harness subcommands with examples")
   .action(() => {
     list();
+  });
+
+program
+  .command("security")
+  .description(
+    "Set the harness security level (0 off, 1 guard, 2 sandbox, 3 external); no arg reports the current level",
+  )
+  .argument("[level]", "0 | 1 | 2 | 3")
+  .action(async (level?: string) => {
+    await security(level);
   });
 
 program
