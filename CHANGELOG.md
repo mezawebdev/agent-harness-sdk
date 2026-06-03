@@ -8,6 +8,40 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-06-03
+
+### Added
+
+- **Harness self-protection with tiered security levels (0–3).** The harness now
+  guards its own enforcement surface — `harness/`, the hook wiring, and its
+  `.env.agents` unlock file — from the agent. A built-in, non-removable
+  `protect-harness` guard blocks edits while locked; levels escalate off (0) →
+  in-process guard (1, the default) → OS sandbox (2) → external file hardening (3).
+  New harnesses are **locked by default**. Set the level (human-only) with
+  `npx harness security <0–3>`; unlock for harness work with `npx harness security 0`.
+  Levels 2–3 require macOS or Linux.
+- **`harness security audit`** — a red-team check that probes the protected surface
+  at the current level and reports whether it's enforcing as designed.
+- **`UserPromptSubmit` drift hook** — catches an SDK upgrade that lands mid-session
+  (which `SessionStart` can't see without a restart) and nudges you to run
+  `/harness update`, throttled to once per session.
+- **Natural-language `/harness add`** — describe the guard, check, or tool you want
+  in plain language; the agent names it, scaffolds it via the CLI, and writes a
+  first implementation.
+- **Security guide** in the documentation — the level model, unlocking, and the audit.
+
+### Changed
+
+- **`harness update` now re-merges the hook wiring** in `.claude/settings.json` and
+  `.mcp.json`, not just the `.claude/` markdown — so matcher/command changes from an
+  SDK upgrade actually reach existing projects.
+
+### Fixed
+
+- **Bash guards now fire.** The `PreToolUse` hook matcher excluded `Bash`, so guards
+  scoped to Bash commands silently never ran. Run `npx harness update` to pick up the
+  corrected wiring in an existing project.
+
 ## [0.2.5] — 2026-05-29
 
 ### Fixed
