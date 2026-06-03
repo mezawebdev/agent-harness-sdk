@@ -52,9 +52,37 @@ describe("removeHarnessSandbox", () => {
     expect(out.permissions?.deny).toEqual(["Read(~/.ssh)"]);
   });
 
-  it("cleans up empty containers it created", () => {
+  it("cleans up empty containers it created — including the sandbox block", () => {
     const out = removeHarnessSandbox(addHarnessSandbox({}));
-    expect(out.sandbox?.filesystem?.denyWrite).toBeUndefined();
+    // a downgrade fully disables the sandbox, not just our denyWrite
+    expect(out.sandbox).toBeUndefined();
+    expect(out.permissions?.deny).toBeUndefined();
+  });
+
+  it("keeps the sandbox block when the user has their own filesystem rules", () => {
+    const out = removeHarnessSandbox(
+      addHarnessSandbox({
+        sandbox: { enabled: true, filesystem: { denyWrite: ["/etc/**"] } },
+      }),
+    );
+    expect(out.sandbox?.filesystem?.denyWrite).toEqual(["/etc/**"]);
+  });
+
+  it("fully removes a block written by an older version (superseded **/.env pattern)", () => {
+    // Simulates `security 2` on an old SDK, then `security 0` after the
+    // .env → .env.agents change: the legacy entries must still be stripped.
+    const legacy = {
+      sandbox: {
+        enabled: true,
+        filesystem: {
+          denyWrite: ["harness/**", "**/.env", ".claude/settings.json"],
+        },
+      },
+      permissions: { deny: ["Edit(harness/**)", "Write(harness/**)", "Edit(**/.env)"] },
+    };
+    expect(hasHarnessSandbox(legacy)).toBe(true); // detected via stable anchors
+    const out = removeHarnessSandbox(legacy);
+    expect(out.sandbox).toBeUndefined();
     expect(out.permissions?.deny).toBeUndefined();
   });
 
