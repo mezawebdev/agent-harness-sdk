@@ -8,27 +8,9 @@ import {
 import { join } from "node:path";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import {
-  mergeClaudeSettings,
-  mergeMcpServers,
-} from "../merge-config";
 import { syncContent } from "../sync-content";
-import {
-  harnessConfigTemplate,
-  harnessHookEntries,
-  harnessMcpServerEntry,
-} from "../templates";
-
-const HARNESS_MCP_SERVER_KEY = "harness-mcp";
-
-function readJsonOrNull(path: string): unknown {
-  if (!existsSync(path)) return null;
-  try {
-    return JSON.parse(readFileSync(path, "utf-8"));
-  } catch {
-    return null;
-  }
-}
+import { harnessConfigTemplate } from "../templates";
+import { installWiring } from "../wiring";
 
 export async function init(): Promise<void> {
   const cwd = process.cwd();
@@ -62,42 +44,30 @@ export async function init(): Promise<void> {
   writeFileSync(join(cwd, "harness/harness.config.ts"), harnessConfigTemplate());
   s.stop("harness.config.ts written");
 
-  s.start("Merging .claude/settings.json (preserving existing entries)");
-  const settingsPath = join(cwd, ".claude/settings.json");
-  const existingSettings = readJsonOrNull(settingsPath) as Parameters<typeof mergeClaudeSettings>[0];
-  const mergedSettings = mergeClaudeSettings(existingSettings, harnessHookEntries());
-  writeFileSync(settingsPath, `${JSON.stringify(mergedSettings, null, 2)}\n`);
-  s.stop(".claude/settings.json merged");
-
-  s.start("Merging .mcp.json (preserving other MCP servers)");
-  const mcpPath = join(cwd, ".mcp.json");
-  const existingMcp = readJsonOrNull(mcpPath) as Parameters<typeof mergeMcpServers>[0];
-  const mergedMcp = mergeMcpServers(
-    existingMcp,
-    HARNESS_MCP_SERVER_KEY,
-    harnessMcpServerEntry(),
-  );
-  writeFileSync(mcpPath, `${JSON.stringify(mergedMcp, null, 2)}\n`);
-  s.stop(".mcp.json merged");
+  s.start("Merging .claude/settings.json + .mcp.json (preserving existing entries)");
+  installWiring(cwd);
+  s.stop(".claude/settings.json + .mcp.json merged");
 
   s.start("Installing library skills, rules, and commands");
   const summary = syncContent(cwd);
   const written = summary.files.filter((f) => f.outcome === "wrote").length;
   s.stop(`Installed ${written} library file${written === 1 ? "" : "s"}`);
 
-  s.start("Adding .harness/ to .gitignore");
+  s.start("Updating .gitignore");
   const gitignorePath = join(cwd, ".gitignore");
-  const ignoreEntry = ".harness/\n";
-  if (!existsSync(gitignorePath)) {
-    writeFileSync(gitignorePath, ignoreEntry);
-  } else {
-    const current = readFileSync(gitignorePath, "utf-8");
-    if (!current.split("\n").some((l) => l.trim() === ".harness/" || l.trim() === ".harness")) {
-      appendFileSync(
-        gitignorePath,
-        (current.endsWith("\n") ? "" : "\n") + ignoreEntry,
-      );
-    }
+  // .harness/ = per-machine scratch (drift state, legacy manifest);
+  // .env.agents = the local unlock flag — neither belongs in git.
+  const ignoreEntries = [".harness/", ".env.agents"];
+  const current = existsSync(gitignorePath)
+    ? readFileSync(gitignorePath, "utf-8")
+    : "";
+  const present = new Set(current.split("\n").map((l) => l.trim()));
+  const missing = ignoreEntries.filter(
+    (e) => !present.has(e) && !present.has(e.replace(/\/$/, "")),
+  );
+  if (missing.length > 0) {
+    const prefix = current === "" || current.endsWith("\n") ? "" : "\n";
+    appendFileSync(gitignorePath, `${prefix}${missing.join("\n")}\n`);
   }
   s.stop(".gitignore updated");
 
@@ -119,9 +89,9 @@ export async function init(): Promise<void> {
       pc.green("Harness initialized"),
       "",
       pc.dim(
-        "This harness is locked by default — it protects its own files (harness/, .env, the hook wiring) from the agent.",
+        "This harness is locked by default — it protects its own files (harness/, .env.agents, the hook wiring) from the agent.",
       ),
-      `  ${pc.dim("•")} to let the agent change the harness, add ${pc.cyan("HARNESS_UNLOCK=1")} to ${pc.cyan(".env")}`,
+      `  ${pc.dim("•")} to let the agent change the harness, add ${pc.cyan("HARNESS_UNLOCK=1")} to ${pc.cyan(".env.agents")}`,
       `  ${pc.dim("•")} use ${pc.cyan("/harness security help")} to learn more`,
       "",
       pc.dim("Restart Claude Code from this directory to load the harness."),

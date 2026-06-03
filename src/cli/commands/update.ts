@@ -1,6 +1,7 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { syncContent } from "../sync-content";
+import { installWiring } from "../wiring";
 
 export async function update(): Promise<void> {
   const cwd = process.cwd();
@@ -30,6 +31,28 @@ export async function update(): Promise<void> {
     console.log(
       `  ${pc.yellow("!")} ${pc.bold(f.path)} ${pc.dim("(skipped — exists, no manifest entry)")}`,
     );
+  }
+
+  // Re-merge the hook wiring so SDK upgrades that changed it (matchers, hook
+  // commands, denyWrite rules) actually land in existing projects. syncContent
+  // only touches the .claude/ markdown, so without this settings.json stays
+  // stale — and the SessionStart drift nudge would point here for nothing.
+  s.start("Refreshing hook wiring");
+  const wiring = installWiring(cwd);
+  s.stop("Hook wiring checked");
+
+  const refreshed = [
+    wiring.settings === "updated" ? ".claude/settings.json" : null,
+    wiring.mcp === "updated" ? ".mcp.json" : null,
+  ].filter((f): f is string => f !== null);
+  if (refreshed.length > 0) {
+    for (const f of refreshed) {
+      console.log(
+        `  ${pc.dim("✓")} ${pc.bold(f)} ${pc.dim("(wiring refreshed)")}`,
+      );
+    }
+  } else {
+    console.log(`  ${pc.dim("✓")} ${pc.dim("hook wiring already current")}`);
   }
 
   if (skippedMod.length + skippedNew.length > 0) {
