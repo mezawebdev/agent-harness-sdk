@@ -179,8 +179,8 @@ function setLevel2(cwd: string) {
 function setLevel3(cwd: string) {
   const recipe =
     process.platform === "darwin"
-      ? "sudo chown -R root harness .env.agents && sudo chmod -R a-w harness .env.agents"
-      : "sudo chattr -R +i harness .env.agents";
+      ? "sudo chown -R root harness .env.agents .claude/settings.json && sudo chmod -R a-w harness .env.agents .claude/settings.json"
+      : "sudo chattr -R +i harness .env.agents .claude/settings.json";
   p.note(
     [
       "External hardening is enforced by the OS, not the harness. It must require",
