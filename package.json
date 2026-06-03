@@ -42,6 +42,7 @@
     "./hooks/pre-tool-use": "./dist/hooks/pre-tool-use.js",
     "./hooks/post-tool-use": "./dist/hooks/post-tool-use.js",
     "./hooks/session-start": "./dist/hooks/session-start.js",
+    "./hooks/user-prompt-submit": "./dist/hooks/user-prompt-submit.js",
     "./mcp/start": "./dist/mcp/start.js"
   },
   "files": [
