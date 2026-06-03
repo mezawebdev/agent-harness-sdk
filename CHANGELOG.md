@@ -8,6 +8,15 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.3.1] — 2026-06-03
+
+### Changed
+
+- **README** now documents the natural-language `/harness add` flow and the
+  locked-by-default self-protection + security levels (matching the docs site).
+  No code changes — this release republishes so the npm package page reflects the
+  updated README.
+
 ## [0.3.0] — 2026-06-03
 
 ### Added
