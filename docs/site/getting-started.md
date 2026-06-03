@@ -23,9 +23,19 @@ npx harness init
 Restart Claude Code. You will now have a `harness/` directory, hooks registered
 under `.claude/`, and the harness server merged into `.mcp.json`.
 
+### Unlock the harness
+
+The harness is **locked by default** — it protects its own files (`harness/`, the
+hook wiring) from the agent, so the agent can't edit or scaffold harness primitives
+until you unlock it:
+
+```bash
+npx harness security 0
+```
+
 ### Scaffold a primitive
 
-From inside Claude Code:
+From inside Claude Code (the harness must be [unlocked](#unlock-the-harness) first):
 
 ```
 /harness add guard block-pushes
@@ -35,4 +45,7 @@ From inside Claude Code:
 
 Each command writes a typed stub into the right directory and registers it in
 `harness/harness.config.ts`. Fill in the `run`/`handler` body and you're done.
+
+When you're done working on the harness, re-lock it with `npx harness security 1`.
+See [Security](/guides/security) to learn more.
 
