@@ -3,8 +3,8 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { HarnessConfig } from "../define";
 import { loadProjectEnv } from "../env";
-import { createPostToolUseDispatcher } from "./dispatch";
-import { projectDir } from "./utils";
+import { projectDir } from "../paths";
+import { createPostToolUseDispatcher } from "./lib/dispatch";
 
 async function main() {
   const dir = projectDir();

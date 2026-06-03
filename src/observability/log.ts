@@ -7,7 +7,7 @@
  */
 import { appendFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { projectDir } from "../hooks/utils";
+import { projectDir } from "../paths";
 
 const DEFAULT_PATH = ".harness/log.jsonl";
 

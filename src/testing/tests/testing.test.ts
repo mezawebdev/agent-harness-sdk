@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defineCheck, defineGuard } from "../../define";
-import { projectDir } from "../../hooks/utils";
+import { projectDir } from "../../paths";
 import { checkFail, checkOk, guardAllow, guardDeny } from "../../types";
 import { bashTool, runCheck, runGuard, tool, writeTool } from "../index";
 

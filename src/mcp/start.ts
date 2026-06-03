@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { HarnessConfig } from "../define";
 import { loadProjectEnv } from "../env";
-import { projectDir } from "../hooks/utils";
+import { projectDir } from "../paths";
 import {
   evolveDismissFinding,
   evolveRecordRun,

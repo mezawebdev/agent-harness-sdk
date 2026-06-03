@@ -62,9 +62,10 @@ export { guardAllow, guardDeny } from "./types";
 export { checkOk, checkFail } from "./types";
 
 // ──────────────────────────────────────────────────────────────────────────
-// Hook utilities (stdin I/O, exit helpers)
+// Hook utilities (stdin I/O, exit helpers) + project paths
 // ──────────────────────────────────────────────────────────────────────────
-export { readHookInput, pass, block, projectDir } from "./hooks/utils";
+export { readHookInput, pass, block } from "./hooks/lib/io";
+export { projectDir } from "./paths";
 
 // ──────────────────────────────────────────────────────────────────────────
 // Hook dispatcher factories
@@ -72,7 +73,7 @@ export { readHookInput, pass, block, projectDir } from "./hooks/utils";
 export {
   createPreToolUseDispatcher,
   createPostToolUseDispatcher,
-} from "./hooks/dispatch";
+} from "./hooks/lib/dispatch";
 
 // ──────────────────────────────────────────────────────────────────────────
 // MCP server bootstrap

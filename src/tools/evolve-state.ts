@@ -16,7 +16,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { z } from "zod";
 import { defineTool } from "../define";
-import { projectDir } from "../hooks/utils";
+import { projectDir } from "../paths";
 import { toolErr, toolOk } from "../types";
 
 const STATE_FILE = ".harness/evolve.json";

@@ -4,8 +4,8 @@ import { pathToFileURL } from "node:url";
 import type { HarnessConfig } from "../define";
 import { loadProjectEnv } from "../env";
 import { protectHarness } from "../guards/protect-harness";
-import { createPreToolUseDispatcher } from "./dispatch";
-import { projectDir } from "./utils";
+import { projectDir } from "../paths";
+import { createPreToolUseDispatcher } from "./lib/dispatch";
 
 async function main() {
   const dir = projectDir();

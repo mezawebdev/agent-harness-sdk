@@ -1,7 +1,7 @@
-import { logEvent } from "../observability/log";
-import type { Check, Guard } from "../types";
-import { shouldRun } from "../conditions";
-import { block, pass, readHookInput } from "./utils";
+import { logEvent } from "../../observability/log";
+import type { Check, Guard } from "../../types";
+import { shouldRun } from "../../conditions";
+import { block, pass, readHookInput } from "./io";
 
 /**
  * Reads PreToolUse hook input from stdin, runs all matching guards in parallel,

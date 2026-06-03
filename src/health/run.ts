@@ -2,7 +2,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { HarnessConfig } from "../define";
-import { projectDir } from "../hooks/utils";
+import { projectDir } from "../paths";
 import { auditPrimitives, type DiscoveredFile, type PrimitiveType } from "./audit";
 import { triggerPrimitive } from "./trigger";
 import type { HookInput } from "../types";
