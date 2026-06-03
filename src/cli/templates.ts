@@ -38,6 +38,9 @@ export function harnessHookEntries() {
     PreToolUse: [entryFor("pre-tool-use.js", "Edit|Write|MultiEdit|Bash")],
     // PostToolUse checks validate file edits, so they stay file-tool only.
     PostToolUse: [entryFor("post-tool-use.js", "Edit|Write|MultiEdit")],
+    // UserPromptSubmit fires once per turn — catches an SDK upgrade that lands
+    // mid-session, which SessionStart can't see without a restart.
+    UserPromptSubmit: [matcherlessEntryFor("user-prompt-submit.js")],
     SessionStart: [matcherlessEntryFor("session-start.js")],
   };
 }
