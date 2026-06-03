@@ -1,14 +1,14 @@
 import { parse } from "dotenv";
 import { hasHarnessSandbox } from "./sandbox";
 
-/** The flag (in `.env`) that expresses Level 0 / the in-session unlock. */
+/** The flag (in `.env.agents`) that expresses Level 0 / the in-session unlock. */
 export const UNLOCK = "HARNESS_UNLOCK";
 
 type Settings = Record<string, unknown>;
 
 /** Derive the active level from observable state: `HARNESS_UNLOCK` truthy in
- *  `.env` → 0; harness sandbox block present → 2; otherwise → 1. (Level 3 is OS
- *  state, detected separately by a write probe.) */
+ *  `.env.agents` → 0; harness sandbox block present → 2; otherwise → 1. (Level 3
+ *  is OS state, detected separately by a write probe.) */
 export function deriveLevel(state: { env: string; settings: Settings }): 0 | 1 | 2 {
   const unlock = parse(state.env)[UNLOCK]?.trim().toLowerCase();
   if (unlock && unlock !== "0" && unlock !== "false") return 0;

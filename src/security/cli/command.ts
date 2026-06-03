@@ -19,7 +19,7 @@ type Settings = Record<string, unknown>;
 
 // ── file I/O helpers ─────────────────────────────────────────────────────────
 
-const envPath = (cwd: string) => join(cwd, ".env");
+const envPath = (cwd: string) => join(cwd, ".env.agents");
 const settingsPath = (cwd: string) => join(cwd, ".claude", "settings.json");
 
 const readEnv = (cwd: string): string =>
@@ -125,7 +125,7 @@ function setLevel0(cwd: string) {
   if (hadSandbox) writeSettings(cwd, removeHarnessSandbox(settings));
 
   p.note(
-    `Wrote ${pc.cyan(`${UNLOCK}=1`)} to ${pc.cyan(".env")}.\n` +
+    `Wrote ${pc.cyan(`${UNLOCK}=1`)} to ${pc.cyan(".env.agents")}.\n` +
       "The harness is now unlocked — the agent can edit harness files.",
     "Level 0 — off",
   );
@@ -179,8 +179,8 @@ function setLevel2(cwd: string) {
 function setLevel3(cwd: string) {
   const recipe =
     process.platform === "darwin"
-      ? "sudo chown -R root harness .env && sudo chmod -R a-w harness .env"
-      : "sudo chattr -R +i harness .env";
+      ? "sudo chown -R root harness .env.agents && sudo chmod -R a-w harness .env.agents"
+      : "sudo chattr -R +i harness .env.agents";
   p.note(
     [
       "External hardening is enforced by the OS, not the harness. It must require",

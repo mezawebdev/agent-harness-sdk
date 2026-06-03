@@ -47,16 +47,16 @@ afterAll(() => {
   rmSync(projectDir, { recursive: true, force: true });
 });
 
-// Unlock is read only from the project .env. Write one to unlock; locked is the
-// default, so remove it after each test to keep tests independent.
+// Unlock is read only from the project .env.agents. Write one to unlock; locked
+// is the default, so remove it after each test to keep tests independent.
 function setUnlock(value: string) {
-  writeFileSync(join(projectDir, ".env"), `HARNESS_UNLOCK=${value}\n`);
+  writeFileSync(join(projectDir, ".env.agents"), `HARNESS_UNLOCK=${value}\n`);
 }
 afterEach(() => {
   try {
-    unlinkSync(join(projectDir, ".env"));
+    unlinkSync(join(projectDir, ".env.agents"));
   } catch {
-    // no .env written this test — fine.
+    // no .env.agents written this test — fine.
   }
 });
 
@@ -77,9 +77,14 @@ describe("protectHarness — locked (default)", () => {
     expect(result.denied).toBe(true);
   });
 
-  it("denies writing .env (self-unlock invariant)", async () => {
-    const result = await run(writeTool(at(".env")));
+  it("denies writing .env.agents (self-unlock invariant)", async () => {
+    const result = await run(writeTool(at(".env.agents")));
     expect(result.denied).toBe(true);
+  });
+
+  it("does not block the app's .env (protect-env-files's job, not this guard's)", async () => {
+    const result = await run(writeTool(at(".env")));
+    expect(result.denied).toBe(false);
   });
 
   it("denies a settings.json edit that strips the harness hook", async () => {
@@ -196,16 +201,16 @@ describe("protectHarness — Bash `harness security` is human-only", () => {
   });
 });
 
-describe("protectHarness — unlocked via project .env (HARNESS_UNLOCK=1)", () => {
+describe("protectHarness — unlocked via project .env.agents (HARNESS_UNLOCK=1)", () => {
   it("allows editing harness files", async () => {
     setUnlock("1");
     const result = await run(writeTool(at("harness/harness.config.ts")));
     expect(result.denied).toBe(false);
   });
 
-  it("allows .env (protect-env-files handles that separately)", async () => {
+  it("allows editing .env.agents when unlocked", async () => {
     setUnlock("1");
-    const result = await run(writeTool(at(".env")));
+    const result = await run(writeTool(at(".env.agents")));
     expect(result.denied).toBe(false);
   });
 

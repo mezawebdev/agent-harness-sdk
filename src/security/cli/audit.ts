@@ -35,7 +35,7 @@ export async function runAudit(cwd: string): Promise<number> {
   p.intro(pc.cyan("harness security audit"));
 
   const settingsPath = join(cwd, ".claude", "settings.json");
-  const envPath = join(cwd, ".env");
+  const envPath = join(cwd, ".env.agents");
   let settings: Settings = {};
   try {
     settings = JSON.parse(readFileOrNull(settingsPath) ?? "{}") as Settings;
@@ -78,7 +78,7 @@ export async function runAudit(cwd: string): Promise<number> {
   if (probeRes.result === "wrote") rmSync(probe, { force: true });
   recordFs("fs write → harness/.redteam-probe", probeRes);
 
-  recordFs(".env write (HARNESS_UNLOCK)", attemptWriteReversible(envPath));
+  recordFs(".env.agents write (HARNESS_UNLOCK)", attemptWriteReversible(envPath));
   recordFs("settings.json write", attemptWriteReversible(settingsPath));
 
   // Guard logic — run in-process (no subprocess; the exact code production runs).

@@ -36,10 +36,11 @@ If a tool keeps failing, report it — do not bypass.
 ### Enforced lock
 
 The built-in `protect-harness` guard **enforces** part of this boundary: edits
-to `harness/**`, `.env`/`.env.*`, and the harness hook wiring in
-`.claude/settings.json` are blocked by default. This guard is injected by the
-hook dispatcher itself — it is not in `harness.config.ts` and cannot be
-unregistered there.
+to `harness/**`, `.env.agents` (the harness unlock file), and the harness hook
+wiring in `.claude/settings.json` are blocked by default. This guard is injected
+by the hook dispatcher itself — it is not in `harness.config.ts` and cannot be
+unregistered there. (The app's own `.env` is the separate, opt-in
+`protect-env-files` guard's concern, not this one.)
 
 Unlocking the harness is a **human** decision that the agent cannot perform
 itself. When you hit this block, don't try to route around it (e.g. via a shell

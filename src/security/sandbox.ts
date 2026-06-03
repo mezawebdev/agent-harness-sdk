@@ -7,10 +7,12 @@
  * removal leaves `sandbox.enabled` as-is (use `/sandbox` to fully disable).
  */
 
-/** Paths the harness marks read-only at the OS level (sandbox `denyWrite`). */
+/** Paths the harness marks read-only at the OS level (sandbox `denyWrite`).
+ *  Only the harness surface — `.env.agents` is the unlock file; the app's own
+ *  `.env` is left to the opt-in `protect-env-files` guard. */
 export const HARNESS_DENY_WRITE = [
   "harness/**",
-  "**/.env",
+  "**/.env.agents",
   ".claude/settings.json",
 ];
 
@@ -19,7 +21,8 @@ export const HARNESS_DENY_WRITE = [
 export const HARNESS_PERMISSION_DENY = [
   "Edit(harness/**)",
   "Write(harness/**)",
-  "Edit(**/.env)",
+  "Edit(**/.env.agents)",
+  "Write(**/.env.agents)",
 ];
 
 type Settings = {

@@ -2,13 +2,17 @@ import { describe, expect, it } from "vitest";
 import { deriveLevel, expectedFor } from "../levels";
 
 describe("deriveLevel", () => {
-  it("reports 0 when HARNESS_UNLOCK is truthy in .env", () => {
+  it("reports 0 when HARNESS_UNLOCK is truthy in .env.agents", () => {
     expect(deriveLevel({ env: "HARNESS_UNLOCK=1\n", settings: {} })).toBe(0);
   });
 
   it("reports 2 when the sandbox protection block is present", () => {
     const settings = {
-      sandbox: { filesystem: { denyWrite: ["harness/**", "**/.env", ".claude/settings.json"] } },
+      sandbox: {
+        filesystem: {
+          denyWrite: ["harness/**", "**/.env.agents", ".claude/settings.json"],
+        },
+      },
     };
     expect(deriveLevel({ env: "", settings })).toBe(2);
   });

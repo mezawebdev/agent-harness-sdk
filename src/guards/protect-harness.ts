@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { parse } from "dotenv";
 import { HARNESS_HOOK_MARKER } from "../cli/merge-config";
-import { projectDir } from "../hooks/utils";
+import { projectDir } from "../paths";
 import { Tools } from "../tool-names";
 import { type Guard, type HookInput, guardAllow, guardDeny } from "../types";
 
@@ -12,23 +12,24 @@ import { type Guard, type HookInput, guardAllow, guardDeny } from "../types";
  * dispatcher (not registered in the consumer's `harness.config.ts`), so it
  * cannot be unregistered by editing that file.
  *
- * Protects, unless `HARNESS_UNLOCK` is set (see {@link isUnlocked}):
+ * Protects, unless `HARNESS_UNLOCK` is set in `.env.agents` (see {@link isUnlocked}):
  *   - `harness/**`            — config, guards, checks, tools, rules
- *   - `.env` / `.env.*`       — closes the self-unlock path (the flag can't be
- *                               set in a file the agent can write while locked)
+ *   - `.env.agents`           — the unlock file itself, so the agent can't set
+ *                               the flag in a file it could write while locked
  *   - `.claude/settings.json` — but only when the edit would tamper with the
  *                               harness hook wiring; other sections pass through
  *
- * `.env` stays protected when *unlocked* too, but by the separate, removable
- * `protect-env-files` guard — not this one. See the design doc.
+ * The app's own `.env` is deliberately NOT protected here — that's the separate,
+ * opt-in `protect-env-files` guard's job. The harness internals concern
+ * themselves only with their own surface. See the design doc.
  */
 
-/** Whether the harness is unlocked, read **only** from the project `.env`
+/** Whether the harness is unlocked, read **only** from the project `.env.agents`
  *  (ambient `process.env` is intentionally ignored — unlock is a per-project,
  *  in-repo decision, not a global shell toggle). Truthy unless absent, empty,
- *  "0", or "false". Absent `.env` or unset flag = locked, the secure default. */
+ *  "0", or "false". Absent file or unset flag = locked, the secure default. */
 function isUnlocked(): boolean {
-  const envPath = join(projectDir(), ".env");
+  const envPath = join(projectDir(), ".env.agents");
   if (!existsSync(envPath)) return false;
   let value: string | undefined;
   try {
@@ -47,9 +48,11 @@ function relativePathOf(input: HookInput): string {
   return relative(projectDir(), file).split("\\").join("/");
 }
 
-function isEnvFile(relativePath: string): boolean {
-  const base = relativePath.split("/").pop() ?? "";
-  return /^\.env($|\.)/.test(base);
+/** The harness's own `.env.agents` (holds the unlock flag) at the project root —
+ *  the only env file these built-in protections cover. The app's `.env` is
+ *  `protect-env-files`'s job. */
+function isAgentsEnvFile(relativePath: string): boolean {
+  return relativePath === ".env.agents";
 }
 
 function isHarnessFile(relativePath: string): boolean {
@@ -102,8 +105,8 @@ function tampersWithHookWiring(input: HookInput): boolean {
 }
 
 const UNLOCK_HINT =
-  "ask the user to set HARNESS_UNLOCK=1 in the project .env to make harness " +
-  "changes, or to make this change manually.";
+  "ask the user to set HARNESS_UNLOCK=1 in the project .env.agents to make " +
+  "harness changes, or to make this change manually.";
 
 /** Matches an attempt to *change* the security level — the `harness` bin or the
  *  CLI entry (`cli/index.{js,ts}`, the direct-bin bypass) invoked with
@@ -156,9 +159,9 @@ export const protectHarness: Guard = {
       );
     }
 
-    if (isEnvFile(relativePath)) {
+    if (isAgentsEnvFile(relativePath)) {
       return guardDeny(
-        `protect-harness: ${relativePath} is locked while the harness is — editing it could set HARNESS_UNLOCK and weaken enforcement. ${UNLOCK_HINT}`,
+        `protect-harness: ${relativePath} holds the harness unlock flag and is locked — editing it could set HARNESS_UNLOCK and weaken enforcement. ${UNLOCK_HINT}`,
       );
     }
 
