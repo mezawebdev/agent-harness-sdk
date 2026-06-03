@@ -23,27 +23,21 @@ export default defineHarness({
 
 /** Hook entries to merge into the user's `.claude/settings.json`. */
 export function harnessHookEntries() {
-  const matcher = "Edit|Write|MultiEdit";
-  const entryFor = (hookFile: string) => ({
+  const command = (hookFile: string) =>
+    `npx --no-install tsx $CLAUDE_PROJECT_DIR/node_modules/agent-harness-sdk/dist/hooks/${hookFile}`;
+  const entryFor = (hookFile: string, matcher: string) => ({
     matcher,
-    hooks: [
-      {
-        type: "command",
-        command: `npx --no-install tsx $CLAUDE_PROJECT_DIR/node_modules/agent-harness-sdk/dist/hooks/${hookFile}`,
-      },
-    ],
+    hooks: [{ type: "command", command: command(hookFile) }],
   });
   const matcherlessEntryFor = (hookFile: string) => ({
-    hooks: [
-      {
-        type: "command",
-        command: `npx --no-install tsx $CLAUDE_PROJECT_DIR/node_modules/agent-harness-sdk/dist/hooks/${hookFile}`,
-      },
-    ],
+    hooks: [{ type: "command", command: command(hookFile) }],
   });
   return {
-    PreToolUse: [entryFor("pre-tool-use.js")],
-    PostToolUse: [entryFor("post-tool-use.js")],
+    // PreToolUse includes Bash so command guards (e.g. blocking a CLI command)
+    // can fire — the dispatcher still filters per-guard by its `tools`.
+    PreToolUse: [entryFor("pre-tool-use.js", "Edit|Write|MultiEdit|Bash")],
+    // PostToolUse checks validate file edits, so they stay file-tool only.
+    PostToolUse: [entryFor("post-tool-use.js", "Edit|Write|MultiEdit")],
     SessionStart: [matcherlessEntryFor("session-start.js")],
   };
 }

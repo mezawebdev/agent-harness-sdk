@@ -10,3 +10,4 @@ docs/specs/
 docs/site/reference/
 docs/site/.vitepress/cache/
 docs/site/.vitepress/dist/
+.env
