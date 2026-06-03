@@ -104,6 +104,16 @@ export async function security(levelArg?: string): Promise<void> {
     process.exit(1);
   }
 
+  // Levels 2–3 are OS-enforced (Claude Code's sandbox; Unix file hardening) and
+  // have no Windows backend.
+  if (level >= 2 && process.platform === "win32") {
+    p.cancel(
+      "Security levels 2–3 require macOS or Linux — they use Claude Code's OS " +
+        "sandbox and Unix file hardening, which have no Windows equivalent.",
+    );
+    process.exit(1);
+  }
+
   if (level === 0) setLevel0(cwd);
   else if (level === 1) setLevel1(cwd);
   else if (level === 2) setLevel2(cwd);
