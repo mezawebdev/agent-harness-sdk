@@ -52,15 +52,15 @@ my-project/
 └── .harness/                    ← gitignored audit log + evolve state
 ```
 
-Scaffold a harness primitive — from inside Claude Code:
+Scaffold a harness primitive — from inside Claude Code, describe what you want in plain language:
 
 ```
-/harness add guard block-pushes
-/harness add check validate-routes
-/harness add tool fetch-weather
+/harness add guard to block imports from internal/ outside its module
+/harness add check that changed components have a test
+/harness add tool to run typecheck and return the errors
 ```
 
-Or from your shell:
+The agent names it, scaffolds the typed stub via the CLI, registers it in `harness.config.ts`, and writes a first implementation with you — asking for specifics if your description needs them. Or scaffold a bare stub from your shell and fill in the body yourself:
 
 ```bash
 npx harness add guard block-pushes
@@ -102,6 +102,23 @@ export default defineHarness({
   tools: [myTool],
 });
 ```
+
+---
+
+## Security
+
+The harness protects its own enforcement surface — `harness/`, the hook wiring, and its `.env.agents` unlock file — from the agent. A guard the agent can quietly delete isn't much of a guard, so new harnesses are **locked by default**.
+
+When you need to work on the harness, unlock it (human-only — the agent can't change its own level):
+
+```bash
+npx harness security 0      # unlock (off)
+npx harness security 1      # re-lock — the in-process guard (default)
+```
+
+Four levels trade convenience for strength: **0** off · **1** in-process guard (default) · **2** OS sandbox · **3** external file hardening. Levels **2–3** make the surface unwritable at the kernel level for long-running / autonomous agents (macOS or Linux).
+
+See the **[Security guide](https://mezawebdev.github.io/agent-harness-sdk/guides/security)** for the full model — including `harness security audit`, a red-team check that probes whether your level is actually enforcing.
 
 ---
 
