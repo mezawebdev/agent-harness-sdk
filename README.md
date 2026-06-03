@@ -52,6 +52,12 @@ my-project/
 └── .harness/                    ← gitignored audit log + evolve state
 ```
 
+The harness starts **locked** — it guards its own files from the agent. To let the agent scaffold or edit harness primitives, unlock it first:
+
+```bash
+npx harness security 0
+```
+
 Scaffold a harness primitive — from inside Claude Code, describe what you want in plain language:
 
 ```
