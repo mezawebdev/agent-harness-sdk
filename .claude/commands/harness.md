@@ -12,8 +12,8 @@ Inspect the first word of `$ARGUMENTS` and dispatch:
 
 | First word | Action |
 |---|---|
-| `add` | Shell out to CLI (see "CLI-backed subcommands" below) |
-| `update` | Shell out to CLI (see "CLI-backed subcommands" below) |
+| `add` | Name, scaffold, and implement a primitive (see "Adding a primitive" below) |
+| `update` | Shell out to CLI (see "Updating" below) |
 | `evolve` | Run the evolve flow (see "Harness evolve" below) |
 | `health` | Run the health flow (see "Harness health" below) |
 | `security` | Run the security flow (see "Harness security" below) |
@@ -25,7 +25,7 @@ If the first word is unrecognized, run `npx --no-install harness list` to show t
 
 | Command | What it does |
 |---|---|
-| `/harness add <type> <name>` | Scaffold a new primitive. Types: `tool`, `guard`, `check`. Names must be kebab-case. |
+| `/harness add <type> <description>` | Describe a guard/check/tool in natural language (a bare kebab-case name also works); the agent names it, scaffolds it, and writes a first implementation. Types: `tool`, `guard`, `check`. |
 | `/harness update` | Sync library skills, rules, and the slash command from agent-harness-sdk (preserves local edits via manifest). |
 | `/harness evolve` | Read-only audit of the codebase + harness — proposes additions, removals, drift fixes, and architectural smells. Tiered by confidence. |
 | `/harness health` | Validate every registered guard/check/tool. Structural soundness for all three; for guards/checks, synthesizes inputs and triggers them through the real pipeline to confirm the boundary holds. Read-only — tool handlers are never executed. |
@@ -36,19 +36,40 @@ If the first word is unrecognized, run `npx --no-install harness list` to show t
 
 `init` is intentionally not routed here: this slash command is installed *by* `harness init`, so the bootstrap step must run from the shell. If the user asks for `/harness init`, tell them to run `npx harness init` from the project root instead.
 
-## CLI-backed subcommands
+## Adding a primitive
 
-For `add` and `update`, run via Bash from the project root:
+`/harness add <type> <description>` — `<type>` is `guard`, `check`, or `tool`; the rest
+is a **natural-language description** of what you want (a bare kebab-case name also
+works). This is **agent-driven** — don't pipe `$ARGUMENTS` to the CLI, because a
+description isn't a valid name. The flow:
+
+1. **Name it.** If the user gave a kebab-case name, use it. If they gave a description,
+   infer a short kebab-case name (e.g. *"prevent writes inside public/"* →
+   `protect-public-dir`) and confirm it with the user in one line.
+2. **Scaffold.** Run the deterministic scaffolder from the project root with just the
+   derived name:
+   ```
+   npx --no-install harness add <type> <name>
+   ```
+   It writes a typed stub to `harness/<type>/<name>.ts` and registers it in
+   `harness/harness.config.ts`. Surface created paths / errors; don't paste full output.
+3. **Implement.** Read the stub and write a **full first pass** of the `run`/`handler`
+   body from the description, following the contracts in `.claude/rules/harness.md`
+   (activation conditions, `guardAllow`/`guardDeny` vs `checkOk`/`checkFail`, structured
+   `toolOk`/`toolErr`, actionable messages). Infer the user's intent — but if the
+   description is too vague to implement correctly (ambiguous scope, missing specifics,
+   unclear pass/deny criteria), **ask clarifying questions before writing.**
+4. **Show your work.** Present the implementation for review and iterate with the user.
+
+## Updating
+
+For `/harness update`, run from the project root:
 
 ```
-npx --no-install harness $ARGUMENTS
+npx --no-install harness update
 ```
 
-After the command runs:
-- Surface the meaningful output (file paths created, registration confirmations, errors).
-- Do **not** paste the full CLI output unless the command failed or there's structured detail worth showing.
-- For `add` commands: after the file is written, open it (Read) and offer to help fill in the TODOs — refer to `.claude/rules/harness.md` for the contracts each primitive must follow. Do not start implementing without confirmation.
-- For `update`: summarize what was created/synced in 1–2 sentences.
+Summarize what was synced in 1–2 sentences.
 
 ## Harness evolve
 
@@ -269,5 +290,6 @@ Empirically check whether the current level actually blocks writes to the harnes
 
 ## Constraints (all subcommands)
 
-- **Do not bypass the CLI** by writing files yourself for `add` and `update`. The CLI handles registration, the manifest, and naming conventions correctly. If the CLI errors, report it — don't work around it.
-- **Do not implement** a newly-scaffolded primitive without confirming with the user first.
+- **The CLI scaffolds; you implement.** Always create the stub + registration via `npx harness add` — never hand-write the file or edit `harness.config.ts` yourself (the CLI handles the manifest and naming conventions). Filling in the `run`/`handler` body afterward *is* your job.
+- **Implement from the description, don't guess blindly.** When the description gives clear intent, write a full first pass and show it for review. When it's too vague to implement correctly, ask clarifying questions before writing — don't invent behavior the user didn't ask for.
+- **If the CLI errors, report it — don't work around it.**

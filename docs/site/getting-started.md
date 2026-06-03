@@ -35,17 +35,18 @@ npx harness security 0
 
 ### Scaffold a primitive
 
-From inside Claude Code (the harness must be [unlocked](#unlock-the-harness) first):
+From inside Claude Code (the harness must be [unlocked](#unlock-the-harness) first),
+describe the guard, check, or tool you want in natural language:
 
 ```
-/harness add guard block-pushes
-/harness add check validate-routes
-/harness add tool fetch-weather
+/harness add guard to block imports from internal/ outside its module
+/harness add check that changed components have a test
+/harness add tool to run typecheck and return the errors
 ```
 
-Each command writes a typed stub into the right directory and registers it in
-`harness/harness.config.ts`. Fill in the `run`/`handler` body and you're done.
+The agent names it, scaffolds a typed stub in the right directory, registers it in
+`harness/harness.config.ts`, and works with you to write the guard, check, or tool —
+asking for specifics if your description needs them.
 
 When you're done working on the harness, re-lock it with `npx harness security 1`.
 See [Security](/guides/security) to learn more.
-

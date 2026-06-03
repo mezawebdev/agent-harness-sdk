@@ -80,7 +80,7 @@ export default defineTool({
 - **Successes return structured `data`**, not prose.
 - **Side effects belong in tools, not skills.** If a step writes a file, runs a command, or mutates state — it's a tool.
 
-Scaffold: `/harness add tool <name>` (auto-registers in `harness.config.ts`).
+Scaffold: `/harness add tool <description>` — describe it; the agent names, scaffolds, and implements it (auto-registers in `harness.config.ts`).
 
 ## Authoring guards
 
@@ -123,7 +123,7 @@ export const myGuard = defineGuard({
 - **Reason strings are surfaced verbatim to Claude.** Prefix with the guard name. Make them actionable ("ask the user to do this manually").
 - **Don't over-enforce.** Every false positive blocks legitimate work.
 
-Scaffold: `/harness add guard <name>`.
+Scaffold: `/harness add guard <description>` — describe it; the agent names, scaffolds, and implements it.
 
 ## Authoring checks
 
@@ -166,7 +166,7 @@ export const validateServices = defineCheck({
 defineCheck({ name: "end-of-turn-audit", on: "stop", run: async () => checkOk() })
 ```
 
-Scaffold: `/harness add check <name>`.
+Scaffold: `/harness add check <description>` — describe it; the agent names, scaffolds, and implements it.
 
 ## Authoring skills, subagents, and rules
 

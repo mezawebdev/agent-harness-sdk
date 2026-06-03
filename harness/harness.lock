@@ -3,11 +3,11 @@
   "files": {
     ".claude/rules/harness.md": {
       "sourceVersion": "0.2.5",
-      "checksum": "sha256:e7b55ccfcd8ab5af"
+      "checksum": "sha256:365f40cfc7cbb5c1"
     },
     ".claude/commands/harness.md": {
       "sourceVersion": "0.2.5",
-      "checksum": "sha256:5787ca209e9d4f29"
+      "checksum": "sha256:ea58e088e8f93fc9"
     }
   }
 }
