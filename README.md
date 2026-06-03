@@ -60,13 +60,7 @@ Scaffold a harness primitive — from inside Claude Code, describe what you want
 /harness add tool to run typecheck and return the errors
 ```
 
-The agent names it, scaffolds the typed stub via the CLI, registers it in `harness.config.ts`, and writes a first implementation with you — asking for specifics if your description needs them. Or scaffold a bare stub from your shell and fill in the body yourself:
-
-```bash
-npx harness add guard block-pushes
-npx harness add check validate-routes
-npx harness add tool fetch-weather
-```
+The agent names it, scaffolds the typed stub via the CLI, registers it in `harness.config.ts`, and writes a first implementation with you — asking for specifics if your description needs them.
 
 Audit the harness:
 
