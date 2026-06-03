@@ -157,6 +157,39 @@ describe("protectHarness — Bash `harness security` is human-only", () => {
     expect((await run(bashTool("npm test"))).denied).toBe(false);
   });
 
+  it("denies `harness add` while locked (scaffolding is a harness change)", async () => {
+    const result = await run(bashTool("npx harness add guard my-guard"));
+    expect(result.denied).toBe(true);
+    expect(result.reason).toContain("HARNESS_UNLOCK");
+  });
+
+  it("denies `harness update` while locked", async () => {
+    expect((await run(bashTool("npx harness update"))).denied).toBe(true);
+  });
+
+  it("denies the direct-entry add form", async () => {
+    expect(
+      (
+        await run(
+          bashTool("node node_modules/agent-harness-sdk/dist/cli/index.js add guard x"),
+        )
+      ).denied,
+    ).toBe(true);
+  });
+
+  it("does not false-positive on `git add harness/...`", async () => {
+    expect(
+      (await run(bashTool("git add harness/guards/foo.ts"))).denied,
+    ).toBe(false);
+  });
+
+  it("allows `harness add` when unlocked", async () => {
+    setUnlock("1");
+    expect((await run(bashTool("npx harness add guard my-guard"))).denied).toBe(
+      false,
+    );
+  });
+
   it("allows `harness security` when the harness is unlocked", async () => {
     setUnlock("1");
     expect((await run(bashTool("npx harness security 0"))).denied).toBe(false);

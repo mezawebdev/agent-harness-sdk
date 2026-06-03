@@ -8,9 +8,10 @@ import {
   addHarnessSandbox,
   hasHarnessSandbox,
   removeHarnessSandbox,
-} from "../sandbox-protection";
-import { isInsideClaudeCode, runAudit } from "../audit";
-import { UNLOCK, deriveLevel, probeWriteBlocked } from "../security-level";
+} from "../sandbox";
+import { UNLOCK, deriveLevel } from "../levels";
+import { isInsideClaudeCode, probeWriteBlocked } from "../probes";
+import { runAudit } from "./audit";
 
 const LEVELS = [0, 1, 2, 3] as const;
 
@@ -61,13 +62,38 @@ export async function security(levelArg?: string): Promise<void> {
       );
       process.exit(1);
     }
-    process.exit(runAudit(cwd));
+    process.exit(await runAudit(cwd));
   }
 
   p.intro(pc.cyan("harness security"));
 
   if (levelArg === undefined) {
     const level = deriveLevel({ env: readEnv(cwd), settings: readSettings(cwd) });
+    if (level === 2) {
+      const lines: string[] = [];
+      // The sandbox loads at session start, so a fresh `security 2` isn't active
+      // until restart — probe a protected file to tell applied from pending.
+      if (isInsideClaudeCode()) {
+        const active = probeWriteBlocked(join(cwd, "harness", "harness.config.ts"));
+        lines.push(
+          active
+            ? `${pc.green("● active")} this session — writes to harness/ are blocked by the OS.`
+            : `${pc.yellow("○ configured but NOT active")} this session — restart Claude Code to apply.`,
+        );
+      } else {
+        lines.push(
+          pc.dim("(run inside Claude Code to check whether the sandbox is active this session)"),
+        );
+      }
+      // The level-2 edit-deny message is Claude Code's own (`permissions.deny`)
+      // and can't be customized, so the unlock guidance lives here instead.
+      lines.push(
+        pc.dim(
+          "To make harness changes: `npx harness security 1`, restart Claude Code, edit, then `npx harness security 2`.",
+        ),
+      );
+      p.note(lines.join("\n"), `Level ${level} ${describe(level)}`);
+    }
     p.outro(`Current level: ${pc.bold(String(level))} ${describe(level)}`);
     return;
   }

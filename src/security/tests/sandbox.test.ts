@@ -5,7 +5,7 @@ import {
   addHarnessSandbox,
   hasHarnessSandbox,
   removeHarnessSandbox,
-} from "../sandbox-protection";
+} from "../sandbox";
 
 describe("addHarnessSandbox", () => {
   it("enables the sandbox and adds our denyWrite + permission deny rules", () => {

@@ -1,18 +1,10 @@
 /**
- * Security **Level 2** materialization: the OS-enforced read-only protection of
- * the harness surface, expressed as Claude Code sandbox + permission rules in
- * `.claude/settings.json`.
- *
- * - `sandbox.filesystem.denyWrite` → the OS blocks writes at the syscall level
- *   for every Bash subprocess (the vector the in-process guard can't cover).
- * - `permissions.deny` → Claude Code blocks the Edit/Write file tools (the
- *   sandbox only covers Bash subprocesses).
- *
- * These functions edit a settings *object* (pure in → out, no I/O), merging our
- * entries idempotently while preserving the user's. Removal takes out only our
- * entries. Note: removal does **not** flip `sandbox.enabled` back off — fully
- * disabling the sandbox is left to the user (`/sandbox`), since they may rely on
- * it for other reasons.
+ * Security Level 2: OS-enforced read-only protection of the harness surface,
+ * written into `.claude/settings.json`. `denyWrite` blocks Bash subprocesses
+ * (the vector the in-process guard can't cover); `permissions.deny` blocks the
+ * Edit/Write tools (the sandbox covers only Bash). These edit the settings
+ * object purely (in → out), merge idempotently, and remove only our entries —
+ * removal leaves `sandbox.enabled` as-is (use `/sandbox` to fully disable).
  */
 
 /** Paths the harness marks read-only at the OS level (sandbox `denyWrite`). */

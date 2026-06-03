@@ -115,6 +115,14 @@ const UNLOCK_HINT =
  *  kernel `denyWrite` closes those. See the design doc. */
 const HARNESS_SECURITY_CMD = /\b(?:harness|cli\/index\.[jt]s)\s+security\s+[0-3]\b/;
 
+/** Matches the harness-*mutating* CLI subcommands — `add` (scaffold) and
+ *  `update` (sync) — via the `harness` bin or the CLI entry. They modify the
+ *  harness surface, so while locked they're gated like a direct edit (otherwise
+ *  the agent could scaffold but not author — a confusing half-locked state).
+ *  Read-only subcommands (`list`, `health`, `evolve`, `security`/`security
+ *  audit`) are not matched. */
+const HARNESS_MUTATE_CMD = /\b(?:harness|cli\/index\.[jt]s)\s+(?:add|update)\b/;
+
 export const protectHarness: Guard = {
   name: "protect-harness",
   tools: [Tools.Edit, Tools.Write, Tools.MultiEdit, Tools.Bash],
@@ -130,6 +138,11 @@ export const protectHarness: Guard = {
         return guardDeny(
           "protect-harness: changing the harness security level is a human action — " +
             "ask the user to run `harness security` in their terminal.",
+        );
+      }
+      if (HARNESS_MUTATE_CMD.test(command)) {
+        return guardDeny(
+          `protect-harness: \`harness add\`/\`update\` modifies the harness, which is locked. ${UNLOCK_HINT}`,
         );
       }
       return guardAllow();

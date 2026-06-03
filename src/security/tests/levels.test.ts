@@ -1,22 +1,5 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { deriveLevel, probeWriteBlocked } from "../security-level";
-
-let dir: string;
-beforeAll(() => {
-  dir = mkdtempSync(join(tmpdir(), "harness-security-"));
-});
-afterAll(() => rmSync(dir, { recursive: true, force: true }));
-
-describe("probeWriteBlocked", () => {
-  it("is false for a normal writable file", () => {
-    const f = join(dir, "writable.txt");
-    writeFileSync(f, "hi");
-    expect(probeWriteBlocked(f)).toBe(false);
-  });
-});
+import { describe, expect, it } from "vitest";
+import { deriveLevel, expectedFor } from "../levels";
 
 describe("deriveLevel", () => {
   it("reports 0 when HARNESS_UNLOCK is truthy in .env", () => {
@@ -36,5 +19,19 @@ describe("deriveLevel", () => {
 
   it("treats HARNESS_UNLOCK=0 as not unlocked", () => {
     expect(deriveLevel({ env: "HARNESS_UNLOCK=0\n", settings: {} })).toBe(1);
+  });
+});
+
+describe("expectedFor", () => {
+  it("fs-wall: writable at levels 0-1, blocked at 2-3", () => {
+    expect(expectedFor("fs-wall", 0)).toBe("wrote");
+    expect(expectedFor("fs-wall", 1)).toBe("wrote");
+    expect(expectedFor("fs-wall", 2)).toBe("blocked");
+    expect(expectedFor("fs-wall", 3)).toBe("blocked");
+  });
+  it("guard: inert at level 0, denies at 1+", () => {
+    expect(expectedFor("guard", 0)).toBe("allowed");
+    expect(expectedFor("guard", 1)).toBe("denied");
+    expect(expectedFor("guard", 2)).toBe("denied");
   });
 });

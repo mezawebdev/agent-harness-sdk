@@ -3,7 +3,7 @@ import { add } from "./commands/add";
 import { health } from "./commands/health";
 import { init } from "./commands/init";
 import { list } from "./commands/list";
-import { security } from "./commands/security";
+import { security } from "../security";
 import { update } from "./commands/update";
 
 const program = new Command();
