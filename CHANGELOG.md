@@ -8,6 +8,14 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.3.2] — 2026-06-07
+
+### Changed
+
+- **`/harness security`** (no argument) now replies with a single
+  `Current security level is X` line and nothing else. For more detail, use
+  `/harness security help`.
+
 ## [0.3.1] — 2026-06-03
 
 ### Changed
