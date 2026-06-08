@@ -261,7 +261,7 @@ When the user types `/harness health`, validate that every registered primitive 
 
 When the user types `/harness security ...`, branch on the argument after `security`:
 
-- **no argument** → run `npx --no-install harness security` and surface the reported level verbatim.
+- **no argument** → run `npx --no-install harness security`, read the reported level, and respond with a **single line and nothing else**: `Current security level is X` (where `X` is the level). No preamble, no explanation of what the level means, no next-step suggestions, no follow-up. If the user wants more, they can run `/harness security help`.
 - **`help` / `--help`** → run `npx --no-install harness security --help` and surface the output verbatim.
 - **`audit`** → run the red-team flow below.
 - **`0` / `1` / `2` / `3`** (a level change) → **do not run it.** Changing the level is a human-only action — the guard blocks the agent from running `harness security <n>`. Tell the user to run `npx harness security <n>` themselves in their terminal, and stop.
