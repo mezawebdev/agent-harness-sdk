@@ -8,6 +8,14 @@ While `0.0.x`, type-level breaking changes may land in patch releases.
 
 ## [Unreleased]
 
+## [0.3.3] — 2026-06-07
+
+### Added
+
+- **`/harness` argument hint.** The slash command now declares an `argument-hint`
+  so Claude Code's autocomplete shows the available subcommands
+  (`add | update | evolve | health | security | list`).
+
 ## [0.3.2] — 2026-06-07
 
 ### Changed

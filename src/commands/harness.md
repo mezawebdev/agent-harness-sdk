@@ -1,5 +1,6 @@
 ---
 description: Manage the agent-harness-sdk — add primitives, update, audit.
+argument-hint: [add <type> <desc> | update | evolve | health | security | list]
 ---
 
 <!-- managed by agent-harness-sdk — local edits will be skipped on `harness update` -->
